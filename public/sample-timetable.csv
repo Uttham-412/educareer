@@ -1,0 +1,14 @@
+Day,Subject,Professor,Room,Time,Duration,Type,Difficulty
+Monday,Data Structures & Algorithms,Dr. Sarah Smith,CS-101,09:00,90,lecture,hard
+Monday,Machine Learning Fundamentals,Dr. Michael Johnson,AI-203,11:00,90,lecture,hard
+Monday,Web Development Lab,Prof. Emily Brown,Lab-1,14:00,120,lab,medium
+Tuesday,Database Management Systems,Dr. Robert Wilson,CS-301,09:00,90,lecture,medium
+Tuesday,Software Engineering,Prof. Lisa Davis,CS-401,11:00,90,lecture,medium
+Tuesday,Computer Networks,Dr. James Miller,CS-201,14:00,90,lecture,medium
+Wednesday,Operating Systems,Dr. Anna Garcia,CS-302,09:00,90,lecture,hard
+Wednesday,Mobile App Development,Prof. David Lee,Lab-2,11:00,120,lab,medium
+Thursday,Artificial Intelligence,Dr. Jennifer Taylor,AI-101,09:00,90,lecture,hard
+Thursday,Cybersecurity Fundamentals,Prof. Mark Anderson,SEC-201,11:00,90,lecture,medium
+Thursday,Project Management,Dr. Susan White,BUS-101,14:00,60,seminar,easy
+Friday,Cloud Computing,Dr. Kevin Brown,CLOUD-101,09:00,90,lecture,medium
+Friday,Data Science Workshop,Prof. Rachel Green,DS-Lab,11:00,180,lab,hard
