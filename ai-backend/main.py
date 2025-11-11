@@ -4,6 +4,9 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 
+# Import routers
+from app.routers import personalized_recommendations
+
 # Load environment variables
 load_dotenv()
 
@@ -16,10 +19,17 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(
+    personalized_recommendations.router,
+    prefix="/api/v1/recommendations",
+    tags=["Personalized Recommendations"]
 )
 
 @app.get("/")
@@ -27,7 +37,12 @@ async def root():
     return {
         "message": "EduCareer AI Backend is running!",
         "status": "healthy",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "features": [
+            "Personalized Recommendations",
+            "Web Scraping",
+            "AI Matching"
+        ]
     }
 
 @app.get("/health")

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClassSlot {
   id: string;
@@ -37,13 +38,15 @@ interface CertificationRecommendation {
 }
 
 
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+
 export default function Timetable() {
   const [uploadedTimetable, setUploadedTimetable] = useState<DaySchedule[] | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -57,8 +60,10 @@ export default function Timetable() {
         await parseExcelFile(file);
       } else if (fileExtension === 'pdf') {
         await parsePDFFile(file);
+      } else if (['jpg', 'jpeg', 'png', 'bmp', 'tiff'].includes(fileExtension || '')) {
+        await parseImageFile(file);
       } else {
-        throw new Error('Unsupported file format. Please upload CSV, Excel, or PDF files.');
+        throw new Error('Unsupported file format. Please upload CSV, Excel, PDF, or Image files (JPG, PNG).');
       }
       
       setUploadStatus('success');
@@ -66,6 +71,48 @@ export default function Timetable() {
       console.error('File upload error:', error);
       setUploadStatus('error');
       setUploadError(error instanceof Error ? error.message : 'Failed to upload file');
+    }
+  };
+
+  const parseImageFile = async (file: File) => {
+    try {
+      // Use AI backend for image OCR processing
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (userId) {
+        formData.append('user_id', userId);
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/timetable/upload', {
+        method: 'POST',
+        body: formData,
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Failed to process image');
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.data.courses) {
+        // Convert AI-extracted courses to timetable format
+        const schedule = convertAICoursesToSchedule(result.data.courses);
+        setUploadedTimetable(schedule);
+        await saveTimetableToDatabase(schedule);
+      } else {
+        throw new Error('No courses found in the timetable image');
+      }
+    } catch (error) {
+      console.error('Image parsing error:', error);
+      throw error;
     }
   };
 
@@ -145,16 +192,83 @@ Or use the manual entry option to add classes one by one.`);
   };
 
   const parsePDFFile = async (file: File) => {
-    // For PDF files, we'll provide instructions for now
-    // In a real implementation, you'd use a PDF parsing library
-    throw new Error(`PDF file parsing is not yet implemented.
-    
-To use your PDF timetable:
-1. Manually copy the information from your PDF
-2. Use the manual entry option below
-3. Or create a CSV file with your timetable data
+    try {
+      // Use AI backend for PDF processing with OCR and NLP
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (userId) {
+        formData.append('user_id', userId);
+      }
 
-Download the sample CSV template to see the required format.`);
+      const response = await fetch('http://localhost:8000/api/v1/timetable/upload', {
+        method: 'POST',
+        body: formData,
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Failed to process PDF');
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.data.courses) {
+        // Convert AI-extracted courses to timetable format
+        const schedule = convertAICoursesToSchedule(result.data.courses);
+        setUploadedTimetable(schedule);
+        await saveTimetableToDatabase(schedule);
+      } else {
+        throw new Error('No courses found in the timetable');
+      }
+    } catch (error) {
+      console.error('PDF parsing error:', error);
+      throw error;
+    }
+  };
+
+  const convertAICoursesToSchedule = (courses: any[]): DaySchedule[] => {
+    const dayMap = new Map<string, ClassSlot[]>();
+    
+    courses.forEach((course, index) => {
+      const days = course.days || ['Monday'];
+      const times = course.times || ['09:00'];
+      
+      days.forEach((day: string, dayIndex: number) => {
+        const classSlot: ClassSlot = {
+          id: `ai-${index}-${dayIndex}`,
+          subject: course.name || 'Unknown Subject',
+          professor: 'TBA',
+          room: 'TBA',
+          time: times[dayIndex] || times[0] || '09:00',
+          duration: 60,
+          type: 'lecture',
+          difficulty: course.confidence > 0.7 ? 'medium' : 'easy'
+        };
+        
+        if (!dayMap.has(day)) {
+          dayMap.set(day, []);
+        }
+        dayMap.get(day)!.push(classSlot);
+      });
+    });
+    
+    const schedule: DaySchedule[] = [];
+    dayMap.forEach((classes, day) => {
+      schedule.push({
+        day,
+        date: getDateForDay(day),
+        classes: classes.sort((a, b) => a.time.localeCompare(b.time))
+      });
+    });
+    
+    return schedule;
   };
 
   const getDateForDay = (dayName: string): string => {
@@ -177,11 +291,109 @@ Download the sample CSV template to see the required format.`);
 
   const saveTimetableToDatabase = async (schedule: DaySchedule[]) => {
     try {
-      // Save to database (implement based on your schema)
-      console.log('Saving timetable to database:', schedule);
-      // You would implement the actual database save here
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+
+      // Extract course names from schedule
+      const courses = schedule.flatMap(day => 
+        day.classes.map(c => c.subject)
+      ).filter((course, index, arr) => arr.indexOf(course) === index);
+
+      // Save to backend
+      const response = await fetch('http://localhost:5000/api/users/timetable', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          timetable: schedule,
+          courses
+        })
+      });
+
+      if (response.ok) {
+        console.log('Timetable saved successfully');
+        
+        toast({
+          title: "Timetable Saved!",
+          description: "Your timetable has been saved and we're finding relevant courses for you.",
+        });
+        
+        // Trigger course recommendations from AI backend
+        await fetchCourseRecommendations(courses);
+      } else {
+        console.error('Failed to save timetable');
+        toast({
+          title: "Save Failed",
+          description: "Failed to save your timetable. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Failed to save timetable to database:', error);
+    }
+  };
+
+  const fetchCourseRecommendations = async (courses: string[]) => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) return;
+
+      // Call AI backend to get personalized recommendations based on courses
+      const response = await fetch('http://localhost:8000/api/v1/recommendations/personalized', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          courses: courses,
+          include_courses: true,
+          include_jobs: false,
+          limit: 10
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Course recommendations fetched:', data);
+        
+        // Create notification for new recommendations
+        if (data.data && data.data.courses && data.data.courses.length > 0) {
+          await createNotification({
+            title: 'New Course Recommendations Available!',
+            description: `Based on your timetable, we found ${data.data.courses.length} relevant courses for you`,
+            type: 'certification'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch course recommendations:', error);
+    }
+  };
+
+  const createNotification = async (notification: { title: string; description: string; type: string }) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await fetch('http://localhost:5000/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(notification)
+      });
+    } catch (error) {
+      console.error('Failed to create notification:', error);
     }
   };
 
@@ -448,7 +660,7 @@ Download the sample CSV template to see the required format.`);
                   </p>
                   <input
                     type="file"
-                    accept=".csv,.xlsx,.xls,.pdf"
+                    accept=".csv,.xlsx,.xls,.pdf,.jpg,.jpeg,.png,.bmp,.tiff"
                     onChange={(e) => {
                       if (e.target.files?.[0]) {
                         setUploadError(null);
@@ -458,25 +670,36 @@ Download the sample CSV template to see the required format.`);
                     }}
                     className="hidden"
                     id="file-upload"
-                    disabled={uploadStatus === 'uploading' as UploadStatus}
+                    disabled={uploadStatus === 'uploading'}
+                    ref={(input) => {
+                      if (input) {
+                        (window as any).fileInput = input;
+                      }
+                    }}
                   />
-                  <label htmlFor="file-upload">
-                    <Button 
-                      variant="outline" 
-                      className="cursor-pointer"
-                      disabled={uploadStatus === 'uploading' as UploadStatus}
-                    >
-                      <FileText className="w-4 h-4 mr-2" />
-                      Choose File
-                    </Button>
-                  </label>
+                  <Button 
+                    variant="outline" 
+                    className="cursor-pointer"
+                    disabled={uploadStatus === 'uploading'}
+                    onClick={() => {
+                      const input = document.getElementById('file-upload') as HTMLInputElement;
+                      if (input) input.click();
+                    }}
+                    type="button"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Choose File
+                  </Button>
                 </>
               )}
               
               {uploadStatus !== 'error' && (
                 <div className="mt-4 space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    Supported formats: CSV, Excel (.xlsx, .xls), PDF
+                    Supported formats: CSV, Excel (.xlsx, .xls), PDF, Images (JPG, PNG)
+                  </p>
+                  <p className="text-xs text-primary font-medium">
+                    ✨ AI-Powered: PDF and Image files use OCR + NLP for automatic course extraction!
                   </p>
                   <div className="text-xs text-muted-foreground">
                     <p className="font-medium mb-1">CSV Format Example:</p>

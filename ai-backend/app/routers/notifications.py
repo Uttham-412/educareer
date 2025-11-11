@@ -32,6 +32,13 @@ class NotificationPreferences(BaseModel):
     frequency: str = "immediate"  # immediate, daily, weekly
     categories: List[str] = ["recommendations", "achievements", "reminders"]
 
+class MultiChannelNotificationRequest(BaseModel):
+    user_phone: str = None
+    user_email: str = None
+    subject: str = "EduCareer AI Notification"
+    message: str
+    channels: List[str] = ["sms", "email"]
+
 @router.post("/send")
 async def send_notification(
     request: NotificationRequest,
@@ -70,6 +77,30 @@ async def send_notification(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Notification sending failed: {str(e)}")
+
+@router.post("/send-multi")
+async def send_multi_channel(request: MultiChannelNotificationRequest):
+    """Send notification via multiple channels (SMS, Email, WhatsApp)"""
+    
+    try:
+        from app.services.notification_service import send_multi_channel_notification
+        
+        results = send_multi_channel_notification(
+            user_phone=request.user_phone,
+            user_email=request.user_email,
+            subject=request.subject,
+            message=request.message,
+            channels=request.channels
+        )
+        
+        return JSONResponse(content={
+            "success": True,
+            "results": results,
+            "message": "Notifications sent"
+        })
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Multi-channel notification failed: {str(e)}")
 
 @router.post("/send-bulk")
 async def send_bulk_notifications(

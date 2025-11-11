@@ -1,25 +1,53 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface INotification extends Document {
+export interface INotification extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
   title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'assignment' | 'grade' | 'job' | 'system';
-  isRead: boolean;
+  description: string;
+  type: 'opportunity' | 'application' | 'certification' | 'reminder' | 'system' | 'welcome';
+  read: boolean;
   actionUrl?: string;
+  metadata?: any;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const NotificationSchema: Schema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: true },
-  message: { type: String, required: true },
-  type: { type: String, enum: ['info', 'success', 'warning', 'error', 'assignment', 'grade', 'job', 'system'], default: 'info' },
-  isRead: { type: Boolean, default: false },
-  actionUrl: { type: String },
+const notificationSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['opportunity', 'application', 'certification', 'reminder', 'system', 'welcome'],
+    required: true
+  },
+  read: {
+    type: Boolean,
+    default: false
+  },
+  actionUrl: {
+    type: String
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed
+  }
 }, {
   timestamps: true
 });
 
-export default mongoose.model<INotification>('Notification', NotificationSchema);
+// Index for faster queries
+notificationSchema.index({ userId: 1, createdAt: -1 });
+notificationSchema.index({ userId: 1, read: 1 });
+
+export default mongoose.model<INotification>('Notification', notificationSchema);

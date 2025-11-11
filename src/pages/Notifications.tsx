@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Bell, BellRing, CheckCircle, Briefcase, Award, Calendar, Settings } from "lucide-react";
+import { Bell, BellRing, CheckCircle, Briefcase, Award, Calendar, Settings, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Notification {
   id: string;
@@ -13,58 +14,8 @@ interface Notification {
   read: boolean;
   timestamp: string;
   actionUrl?: string;
+  createdAt?: string;
 }
-
-const notifications: Notification[] = [
-  {
-    id: "1",
-    title: "New Job Opening Matches Your Profile!",
-    description: "Senior Frontend Developer at TechCorp - 95% match based on your skills",
-    type: "opportunity",
-    read: false,
-    timestamp: "2 hours ago",
-  },
-  {
-    id: "2",
-    title: "Application Update",
-    description: "Your application for Backend Intern at StartupXYZ is under review",
-    type: "application",
-    read: false,
-    timestamp: "5 hours ago",
-  },
-  {
-    id: "3",
-    title: "Certification Reminder",
-    description: "Complete your React.js course by this Friday to earn certificate",
-    type: "reminder",
-    read: true,
-    timestamp: "1 day ago",
-  },
-  {
-    id: "4",
-    title: "New Internship Opportunities",
-    description: "3 new remote internships added matching your frontend skills",
-    type: "opportunity",
-    read: true,
-    timestamp: "2 days ago",
-  },
-  {
-    id: "5",
-    title: "Certificate Earned!",
-    description: "Congratulations! You've earned JavaScript Algorithms certification",
-    type: "certification",
-    read: true,
-    timestamp: "3 days ago",
-  },
-  {
-    id: "6",
-    title: "Interview Scheduled",
-    description: "Video interview with TechCorp scheduled for March 25, 2024 at 2:00 PM",
-    type: "application",
-    read: false,
-    timestamp: "1 week ago",
-  },
-];
 
 function getNotificationIcon(type: string) {
   switch (type) {
@@ -97,24 +48,88 @@ function getNotificationBadge(type: string) {
 }
 
 export default function Notifications() {
-  const [notificationList, setNotificationList] = useState(notifications);
+  const [notificationList, setNotificationList] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setNotificationList([]);
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationList(data.notifications || []);
+      } else {
+        setNotificationList([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      setNotificationList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const unreadCount = notificationList.filter(n => !n.read).length;
 
-  const markAsRead = (id: string) => {
-    setNotificationList(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setNotificationList(prev => 
+        prev.map(notification => 
+          notification.id === id 
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to mark as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotificationList(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await fetch('http://localhost:5000/api/notifications/read-all', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setNotificationList(prev => 
+        prev.map(notification => ({ ...notification, read: true }))
+      );
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
   };
 
   const groupedNotifications = {
@@ -324,8 +339,18 @@ export default function Notifications() {
         )}
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <Card className="text-center py-12">
+          <CardContent>
+            <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
+            <h3 className="text-lg font-semibold mb-2">Loading notifications...</h3>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Empty State */}
-      {notificationList.length === 0 && (
+      {!loading && notificationList.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

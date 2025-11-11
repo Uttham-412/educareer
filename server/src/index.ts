@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import courseRoutes from './routes/courses';
 import jobRoutes from './routes/jobs';
+import notificationRoutes from './routes/notifications';
 // import { seedDatabase } from './seedData'; // Disabled automatic seeding
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });

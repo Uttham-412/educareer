@@ -20,25 +20,47 @@ interface Certification {
   date: string;
 }
 
+interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  occupation?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
+}
+
 interface ResumeTemplateProps {
   skills: Skill[];
   projects: Project[];
   certifications: Certification[];
+  userProfile?: UserProfile;
 }
 
-export default function ResumeTemplate2({ skills, projects, certifications }: ResumeTemplateProps) {
+export default function ResumeTemplate2({ skills, projects, certifications, userProfile }: ResumeTemplateProps) {
+  const fullName = userProfile?.firstName && userProfile?.lastName 
+    ? `${userProfile.firstName} ${userProfile.lastName}`
+    : userProfile?.firstName || 'Your Name';
+  
+  const occupation = userProfile?.occupation || 'Your Title';
+  const email = userProfile?.email || 'your.email@example.com';
+  const phone = userProfile?.phone || '+91 XXXXXXXXXX';
+  const linkedin = userProfile?.linkedin || 'LinkedIn Profile';
+
   return (
     <div className="bg-white border p-6 rounded-lg shadow-sm min-h-[600px]">
       <div className="grid grid-cols-3 gap-6">
         {/* Left Column */}
         <div className="col-span-1 bg-blue-50 p-4 -m-6 mr-0">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-blue-900">John Doe</h2>
-            <p className="text-blue-700 text-sm">Frontend Developer</p>
+            <h2 className="text-xl font-bold text-blue-900">{fullName}</h2>
+            <p className="text-blue-700 text-sm">{occupation}</p>
             <div className="mt-2 text-xs text-blue-600 space-y-1">
-              <p>john.doe@email.com</p>
-              <p>+91 9876543210</p>
-              <p>LinkedIn Profile</p>
+              <p>{email}</p>
+              <p>{phone}</p>
+              <p>{linkedin}</p>
             </div>
           </div>
 

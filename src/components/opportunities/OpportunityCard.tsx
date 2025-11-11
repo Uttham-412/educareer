@@ -14,6 +14,8 @@ export interface Opportunity {
   skills: string[];
   rating?: number;
   featured?: boolean;
+  applicationUrl?: string;
+  matchScore?: number;
 }
 
 interface OpportunityCardProps {
@@ -50,14 +52,19 @@ function getTypeColor(type: string) {
 export function OpportunityCard({ opportunity, onApply }: OpportunityCardProps) {
   return (
     <Card className={`${getCardClasses(opportunity.type)} relative overflow-hidden group`}>
-      {opportunity.featured && (
-        <div className="absolute top-3 right-3">
+      <div className="absolute top-3 right-3 flex flex-col gap-2">
+        {opportunity.featured && (
           <Badge className="bg-warning text-warning-foreground">
             <Star className="w-3 h-3 mr-1" />
             Featured
           </Badge>
-        </div>
-      )}
+        )}
+        {opportunity.matchScore && (
+          <Badge variant="secondary" className="bg-primary/10 text-primary">
+            {opportunity.matchScore}% Match
+          </Badge>
+        )}
+      </div>
 
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
