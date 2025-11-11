@@ -4,6 +4,12 @@ import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { 
+  sendWelcomeNotification, 
+  sendLoginNotification, 
+  sendProfileIncompleteNotification,
+  checkProfileCompleteness 
+} from '../services/notificationService';
 
 const router = express.Router();
 
@@ -47,6 +53,12 @@ router.post('/register', [
       { userId: user._id },
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '7d' }
+    );
+
+    // Send welcome notification (async, don't wait)
+    const userName = firstName || email.split('@')[0];
+    sendWelcomeNotification(email, userName).catch(err => 
+      console.error('Failed to send welcome notification:', err)
     );
 
     res.status(201).json({
@@ -96,6 +108,20 @@ router.post('/login', [
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '7d' }
     );
+
+    // Send login notification (async, don't wait)
+    const userName = user.firstName || user.email.split('@')[0];
+    sendLoginNotification(user.email, userName, user.phone).catch(err => 
+      console.error('Failed to send login notification:', err)
+    );
+
+    // Check profile completeness and send notification if incomplete
+    const profileCheck = checkProfileCompleteness(user);
+    if (!profileCheck.complete) {
+      sendProfileIncompleteNotification(user.email, userName, user.phone).catch(err =>
+        console.error('Failed to send profile incomplete notification:', err)
+      );
+    }
 
     res.json({
       message: 'Login successful',

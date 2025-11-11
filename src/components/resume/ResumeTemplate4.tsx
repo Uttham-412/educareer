@@ -20,30 +20,60 @@ interface Certification {
   date: string;
 }
 
+interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  occupation?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
+}
+
 interface ResumeTemplateProps {
   skills: Skill[];
   projects: Project[];
   certifications: Certification[];
+  userProfile?: UserProfile;
 }
 
-export default function ResumeTemplate4({ skills, projects, certifications }: ResumeTemplateProps) {
+export default function ResumeTemplate4({ skills, projects, certifications, userProfile }: ResumeTemplateProps) {
+  const fullName = userProfile?.firstName && userProfile?.lastName 
+    ? `${userProfile.firstName} ${userProfile.lastName}`
+    : userProfile?.firstName || 'Your Name';
+  
+  const occupation = userProfile?.occupation || 'Your Title';
+  const email = userProfile?.email || 'your.email@example.com';
+  const phone = userProfile?.phone || '+91 XXXXXXXXXX';
+  const linkedin = userProfile?.linkedin || 'LinkedIn';
+  
+  // Get initials for avatar
+  const getInitials = () => {
+    if (userProfile?.firstName && userProfile?.lastName) {
+      return `${userProfile.firstName[0]}${userProfile.lastName[0]}`.toUpperCase();
+    }
+    return userProfile?.firstName?.[0]?.toUpperCase() || 'YN';
+  };
+
   return (
     <div className="bg-gradient-to-br from-purple-50 to-pink-50 border p-6 rounded-lg shadow-sm min-h-[600px]">
       {/* Modern header */}
       <div className="text-center mb-8 relative">
         <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <span className="text-white text-2xl font-bold">JD</span>
+          <span className="text-white text-2xl font-bold">{getInitials()}</span>
         </div>
         <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          John Doe
+          {fullName}
         </h2>
-        <p className="text-purple-700 font-medium">Frontend Developer</p>
+        <p className="text-purple-700 font-medium">{occupation}</p>
         <div className="flex items-center justify-center gap-2 mt-2 text-sm text-gray-600">
-          <span>john.doe@email.com</span>
+          <span>{email}</span>
           <span>•</span>
-          <span>+91 9876543210</span>
+          <span>{phone}</span>
           <span>•</span>
-          <span>LinkedIn</span>
+          <span>{linkedin}</span>
         </div>
       </div>
 

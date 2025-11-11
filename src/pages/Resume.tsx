@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,23 @@ interface Certification {
   date: string;
 }
 
+interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  occupation?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
+}
+
 export default function Resume() {
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<number>(1);
   const [showTemplateSelection, setShowTemplateSelection] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>({});
   
   const [skills, setSkills] = useState<Skill[]>([
     { id: "1", name: "React.js", level: "Advanced" },
@@ -71,6 +84,68 @@ export default function Resume() {
     description: "",
     technologies: "",
   });
+
+  // Fetch user profile data on component mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:5000/api/users/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserProfile({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+            location: data.location,
+            occupation: data.occupation,
+            bio: data.bio,
+            linkedin: data.linkedin,
+            github: data.github,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+
+    // Listen for profile updates from Student page
+    const handleProfileUpdate = (event: any) => {
+      const updatedProfile = event.detail;
+      setUserProfile({
+        firstName: updatedProfile.firstName,
+        lastName: updatedProfile.lastName,
+        email: updatedProfile.email,
+        phone: updatedProfile.phone,
+        location: updatedProfile.preferredWorkLocation,
+        occupation: updatedProfile.preferredJobSector,
+        bio: updatedProfile.bio,
+        linkedin: updatedProfile.linkedinUrl,
+        github: updatedProfile.githubUrl,
+      });
+      
+      toast({
+        title: "Resume Updated!",
+        description: "Your resume has been automatically updated with your new profile information.",
+      });
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, [toast]);
 
   const addSkill = () => {
     if (newSkill.trim()) {
@@ -122,7 +197,7 @@ export default function Resume() {
   ];
 
   const renderSelectedTemplate = () => {
-    const templateProps = { skills, projects, certifications };
+    const templateProps = { skills, projects, certifications, userProfile };
     switch (selectedTemplate) {
       case 2:
         return <ResumeTemplate2 {...templateProps} />;
@@ -319,10 +394,10 @@ export default function Resume() {
                       <CardContent className="p-0">
                         <div className="aspect-[3/4] bg-muted/50 flex items-center justify-center relative">
                           <div className="scale-50 origin-top-left w-[200%] h-[200%] absolute top-0 left-0">
-                            {template.id === 1 && <ResumeTemplate1 skills={skills} projects={projects} certifications={certifications} />}
-                            {template.id === 2 && <ResumeTemplate2 skills={skills} projects={projects} certifications={certifications} />}
-                            {template.id === 3 && <ResumeTemplate3 skills={skills} projects={projects} certifications={certifications} />}
-                            {template.id === 4 && <ResumeTemplate4 skills={skills} projects={projects} certifications={certifications} />}
+                            {template.id === 1 && <ResumeTemplate1 skills={skills} projects={projects} certifications={certifications} userProfile={userProfile} />}
+                            {template.id === 2 && <ResumeTemplate2 skills={skills} projects={projects} certifications={certifications} userProfile={userProfile} />}
+                            {template.id === 3 && <ResumeTemplate3 skills={skills} projects={projects} certifications={certifications} userProfile={userProfile} />}
+                            {template.id === 4 && <ResumeTemplate4 skills={skills} projects={projects} certifications={certifications} userProfile={userProfile} />}
                           </div>
                         </div>
                         <div className="p-4">

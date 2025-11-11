@@ -14,6 +14,8 @@ export interface IUser extends Document {
   phone?: string;
   preferredWorkType?: string;
   skills?: string[];
+  courses?: string[];
+  timetable?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +34,8 @@ const UserSchema: Schema = new Schema({
   phone: { type: String },
   preferredWorkType: { type: String },
   skills: [{ type: String }],
+  courses: [{ type: String }],
+  timetable: { type: Schema.Types.Mixed },
 }, {
   timestamps: true
 });

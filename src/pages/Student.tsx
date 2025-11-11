@@ -147,6 +147,20 @@ const Student = () => {
           bio: editedProfile.bio,
           location: editedProfile.preferredWorkLocation,
           occupation: editedProfile.preferredJobSector,
+          linkedin: editedProfile.linkedinUrl,
+          github: editedProfile.githubUrl,
+          // Academic information
+          studentId: editedProfile.studentId,
+          rollNumber: editedProfile.rollNumber,
+          institutionName: editedProfile.institutionName,
+          department: editedProfile.department,
+          branch: editedProfile.branch,
+          currentYear: editedProfile.currentYear,
+          currentSemester: editedProfile.currentSemester,
+          cgpa: editedProfile.cgpa,
+          currentPercentage: editedProfile.currentPercentage,
+          dateOfBirth: editedProfile.dateOfBirth,
+          whatsappNumber: editedProfile.whatsappNumber,
         })
       });
 
@@ -156,9 +170,15 @@ const Student = () => {
 
       setProfile(editedProfile);
       setIsEditing(false);
+      
+      // Trigger a custom event to notify Resume page to refresh
+      window.dispatchEvent(new CustomEvent('profileUpdated', { 
+        detail: editedProfile 
+      }));
+      
       toast({
         title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
+        description: "Your profile and resume have been successfully updated.",
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);

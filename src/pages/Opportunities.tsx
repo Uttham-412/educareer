@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpportunityCard, Opportunity } from "@/components/opportunities/OpportunityCard";
-import { Search, Filter, MapPin, Clock, Star } from "lucide-react";
+import { Search, Filter, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
-const allOpportunities: Opportunity[] = [
+const defaultOpportunities: Opportunity[] = [
   {
     id: "1",
     title: "React.js Complete Course",
@@ -100,19 +101,108 @@ const allOpportunities: Opportunity[] = [
 ];
 
 export default function Opportunities() {
-  const [opportunities, setOpportunities] = useState(allOpportunities);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>(defaultOpportunities);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState("all");
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchPersonalizedOpportunities();
+  }, [user]);
+
+  const fetchPersonalizedOpportunities = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:8000/api/v1/recommendations/personalized', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id || 'guest',
+          include_courses: true,
+          include_jobs: true,
+          limit: 20
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Transform API data to match Opportunity interface
+        const transformedOpportunities: Opportunity[] = [
+          ...(data.data.courses || []).map((course: any) => ({
+            id: course.title + course.provider,
+            title: course.title,
+            company: course.provider,
+            description: course.description,
+            type: 'certification' as const,
+            duration: course.duration,
+            skills: course.skills || [],
+            rating: course.rating || 4.5,
+            applicationUrl: course.url,
+            matchScore: course.match_percentage,
+            featured: course.match_percentage > 80
+          })),
+          ...(data.data.jobs || []).map((job: any) => ({
+            id: job.title + job.company,
+            title: job.title,
+            company: job.company,
+            description: job.description,
+            type: job.type?.toLowerCase() === 'internship' ? 'internship' as const : 'job' as const,
+            location: job.location,
+            duration: job.type,
+            skills: job.skills || [],
+            rating: 4.5,
+            applicationUrl: job.url,
+            matchScore: job.match_percentage,
+            featured: job.match_percentage > 85
+          }))
+        ];
+        
+        setOpportunities(transformedOpportunities);
+      } else {
+        // Fallback to default opportunities
+        setOpportunities(defaultOpportunities);
+      }
+    } catch (error) {
+      console.error('Failed to fetch opportunities:', error);
+      setOpportunities(defaultOpportunities);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleApply = (opportunityId: string) => {
     const opportunity = opportunities.find(op => op.id === opportunityId);
-    toast({
-      title: "Application Started!",
-      description: `Applying for ${opportunity?.title} at ${opportunity?.company}`,
-    });
+    
+    if (opportunity?.applicationUrl) {
+      // Track click for analytics
+      fetch('http://localhost:8000/api/v1/recommendations/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id || 'guest',
+          item_id: opportunityId,
+          action: 'clicked'
+        })
+      }).catch(err => console.error('Failed to track click:', err));
+      
+      // Open in new tab
+      window.open(opportunity.applicationUrl, '_blank');
+      
+      toast({
+        title: "Opening Application!",
+        description: `Redirecting to ${opportunity.company}...`,
+      });
+    } else {
+      toast({
+        title: "Application Started!",
+        description: `Applying for ${opportunity?.title} at ${opportunity?.company}`,
+      });
+    }
   };
 
   const filteredOpportunities = opportunities.filter((opportunity) => {
@@ -288,18 +378,36 @@ export default function Opportunities() {
       {/* All Opportunities */}
       <div>
         <h2 className="text-xl font-semibold mb-4">All Opportunities</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredOpportunities.map((opportunity) => (
-            <div key={opportunity.id} className="animate-slide-up">
-              <OpportunityCard
-                opportunity={opportunity}
-                onApply={handleApply}
-              />
-            </div>
-          ))}
-        </div>
+        
+        {loading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-3 bg-muted rounded w-full mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-5/6"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredOpportunities.map((opportunity) => (
+              <div key={opportunity.id} className="animate-slide-up">
+                <OpportunityCard
+                  opportunity={opportunity}
+                  onApply={handleApply}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
-        {filteredOpportunities.length === 0 && (
+        {!loading && filteredOpportunities.length === 0 && (
           <Card className="text-center py-12">
             <CardContent>
               <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

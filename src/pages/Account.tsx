@@ -68,27 +68,55 @@ const Account = () => {
   const fetchProfile = async () => {
     if (!user) return;
     
-    // Use user data from auth context
-    setProfile({
-      first_name: user.firstName || "",
-      last_name: user.lastName || "",
-      student_id: "",
-      roll_number: "",
-      gender: "",
-      phone: user.phone || "",
-      whatsapp_number: "",
-      date_of_birth: "",
-      location: user.location || "",
-      linkedin_url: "",
-      github_url: "",
-      preferred_job_sector: user.occupation || "",
-      preferred_work_location: user.location || "",
-      languages_known: [],
-      bio: user.bio || "",
-      skills: user.skills || [],
-      experience_level: user.experienceLevel || "",
-      preferred_work_type: user.preferredWorkType || "",
-    });
+    try {
+      // Fetch profile from API
+      const response = await usersAPI.getProfile();
+      const userData = response.data;
+      
+      setProfile({
+        first_name: userData.firstName || "",
+        last_name: userData.lastName || "",
+        student_id: "",
+        roll_number: "",
+        gender: "",
+        phone: userData.phone || "",
+        whatsapp_number: "",
+        date_of_birth: "",
+        location: userData.location || "",
+        linkedin_url: "",
+        github_url: "",
+        preferred_job_sector: userData.occupation || "",
+        preferred_work_location: userData.location || "",
+        languages_known: [],
+        bio: userData.bio || "",
+        skills: userData.skills || [],
+        experience_level: userData.experienceLevel || "",
+        preferred_work_type: userData.preferredWorkType || "",
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      // Fallback to user data from auth context
+      setProfile({
+        first_name: user.firstName || "",
+        last_name: user.lastName || "",
+        student_id: "",
+        roll_number: "",
+        gender: "",
+        phone: user.phone || "",
+        whatsapp_number: "",
+        date_of_birth: "",
+        location: user.location || "",
+        linkedin_url: "",
+        github_url: "",
+        preferred_job_sector: user.occupation || "",
+        preferred_work_location: user.location || "",
+        languages_known: [],
+        bio: user.bio || "",
+        skills: user.skills || [],
+        experience_level: user.experienceLevel || "",
+        preferred_work_type: user.preferredWorkType || "",
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,7 +125,7 @@ const Account = () => {
 
     setIsLoading(true);
     try {
-      await usersAPI.updateProfile({
+      const response = await usersAPI.updateProfile({
         firstName: profile.first_name,
         lastName: profile.last_name,
         phone: profile.phone,
@@ -109,11 +137,22 @@ const Account = () => {
         skills: profile.skills,
       });
 
+      // Update auth context with new user data
+      const updatedUserData = response.data.user;
+      if (updatedUserData) {
+        // Update the context
+        (window as any).updateAuthUser?.(updatedUserData);
+      }
+
+      // Refresh user data from API
+      await fetchProfile();
+
       toast({
         title: "Success",
         description: "Profile saved successfully!",
       });
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
         description: "Failed to save profile. Please try again.",

@@ -20,21 +20,43 @@ interface Certification {
   date: string;
 }
 
+interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  occupation?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
+}
+
 interface ResumeTemplateProps {
   skills: Skill[];
   projects: Project[];
   certifications: Certification[];
+  userProfile?: UserProfile;
 }
 
-export default function ResumeTemplate3({ skills, projects, certifications }: ResumeTemplateProps) {
+export default function ResumeTemplate3({ skills, projects, certifications, userProfile }: ResumeTemplateProps) {
+  const fullName = userProfile?.firstName && userProfile?.lastName 
+    ? `${userProfile.firstName} ${userProfile.lastName}`
+    : userProfile?.firstName || 'Your Name';
+  
+  const occupation = userProfile?.occupation || 'Your Title';
+  const email = userProfile?.email || 'your.email@example.com';
+  const phone = userProfile?.phone || '+91 XXXXXXXXXX';
+  const linkedin = userProfile?.linkedin || 'LinkedIn';
+
   return (
     <div className="bg-white border p-6 rounded-lg shadow-sm min-h-[600px]">
       {/* Header with accent */}
       <div className="border-l-4 border-green-500 pl-4 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">John Doe</h2>
-        <p className="text-green-600 font-medium">Frontend Developer</p>
+        <h2 className="text-2xl font-bold text-gray-900">{fullName}</h2>
+        <p className="text-green-600 font-medium">{occupation}</p>
         <p className="text-sm text-gray-500 mt-1">
-          john.doe@email.com • +91 9876543210 • LinkedIn
+          {email} • {phone} • {linkedin}
         </p>
       </div>
 
