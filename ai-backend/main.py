@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # Import routers
-from app.routers import personalized_recommendations
+from app.routers import personalized_recommendations, timetable_extraction, notifications
 
 # Load environment variables
 load_dotenv()
@@ -30,6 +30,18 @@ app.include_router(
     personalized_recommendations.router,
     prefix="/api/v1/recommendations",
     tags=["Personalized Recommendations"]
+)
+
+app.include_router(
+    timetable_extraction.router,
+    prefix="/api/v1/timetable",
+    tags=["Timetable Processing"]
+)
+
+app.include_router(
+    notifications.router,
+    prefix="/api/v1/notifications",
+    tags=["Notifications"]
 )
 
 @app.get("/")

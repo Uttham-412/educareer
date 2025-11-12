@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { Github, Mail, Eye, EyeOff } from "lucide-react";
+import { Github, Mail, Eye, EyeOff, Sparkles } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Navigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import "./auth-animations.css";
 
 const Auth = () => {
   const { user, loading, login, register } = useAuth();
@@ -20,6 +21,7 @@ const Auth = () => {
   const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   if (loading) {
     return (
@@ -74,20 +76,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">
-            {isSignUp ? "Create Account" : "Welcome Back"}
-          </CardTitle>
-          <CardDescription>
-            {isSignUp 
-              ? "Create your account to get started" 
-              : "Sign in to your account to continue"
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="auth-container">
+      <div 
+        className={`animated-box ${isHovered ? 'hovered' : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="animated-login">
+          <div className="login-content">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold uppercase tracking-wider text-white mb-2">
+                {isSignUp ? (
+                  <>Create <Sparkles className="inline w-6 h-6 text-pink-500 animate-pulse" /> Account</>
+                ) : (
+                  <>Welcome <Sparkles className="inline w-6 h-6 text-cyan-400 animate-pulse" /> Back</>
+                )}
+              </h2>
+              <p className="text-gray-400 text-sm">
+                {isSignUp 
+                  ? "Create your account to get started" 
+                  : "Sign in to your account to continue"
+                }
+              </p>
+            </div>
+
+            <div className="space-y-4">
           {/* Email/Password Form */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
             {isSignUp && (
@@ -224,11 +237,13 @@ const Auth = () => {
             </Button>
           </div>
           
-          <div className="text-center text-sm text-muted-foreground">
-            By continuing, you agree to our Terms of Service and Privacy Policy
+              <div className="text-center text-xs text-gray-500 mt-4">
+                By continuing, you agree to our Terms of Service and Privacy Policy
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
