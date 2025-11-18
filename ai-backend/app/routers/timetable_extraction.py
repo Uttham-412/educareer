@@ -109,6 +109,66 @@ async def parse_courses_from_text(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Course parsing failed: {str(e)}")
 
+@router.post("/get-recommendations")
+async def get_course_recommendations(
+    request_data: Dict[str, Any]
+):
+    """
+    Get personalized course recommendations based on timetable courses
+    Returns MORE courses (20+) with apply buttons
+    """
+    
+    try:
+        from app.services.opportunity_scraper import opportunity_scraper
+        
+        # Extract data from request
+        timetable_courses = request_data.get('courses', [])
+        user_profile = request_data.get('user_profile', {})
+        limit = request_data.get('limit', 25)  # Default to 25 recommendations
+        
+        if not timetable_courses:
+            raise HTTPException(status_code=400, detail="No courses provided")
+        
+        # Get personalized recommendations
+        recommendations = opportunity_scraper.get_personalized_recommendations(
+            user_profile=user_profile,
+            timetable_courses=timetable_courses,
+            limit=limit
+        )
+        
+        # Add apply button data to each recommendation
+        for course in recommendations['courses']:
+            course['can_apply'] = True
+            course['apply_button_text'] = 'Enroll Now'
+            course['apply_url'] = course.get('url', course.get('apply_url', '#'))
+        
+        for job in recommendations.get('jobs', []):
+            job['can_apply'] = True
+            job['apply_button_text'] = 'Apply Now'
+            job['apply_url'] = job.get('url', '#')
+        
+        for internship in recommendations.get('internships', []):
+            internship['can_apply'] = True
+            internship['apply_button_text'] = 'Apply for Internship'
+            internship['apply_url'] = internship.get('url', '#')
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Found {recommendations['total_courses']} course recommendations",
+            "data": {
+                "courses": recommendations['courses'],
+                "jobs": recommendations.get('jobs', []),
+                "internships": recommendations.get('internships', []),
+                "total_courses": recommendations['total_courses'],
+                "total_jobs": recommendations.get('total_jobs', 0),
+                "user_year": recommendations.get('user_year', 2),
+                "keywords_used": recommendations.get('keywords_used', [])
+            }
+        })
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get recommendations: {str(e)}")
+
 async def save_extracted_courses(user_id: str, courses: list):
     """Save extracted courses to MongoDB for integration with existing system"""
     try:

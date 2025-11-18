@@ -28,6 +28,19 @@ router.get('/profile', authenticateToken, async (req: AuthRequest, res) => {
       experienceLevel: user.experienceLevel,
       preferredWorkType: user.preferredWorkType,
       skills: user.skills,
+      // Academic fields
+      studentId: user.studentId,
+      rollNumber: user.rollNumber,
+      institutionName: user.institutionName,
+      department: user.department,
+      branch: user.branch,
+      currentYear: user.currentYear,
+      currentSemester: user.currentSemester,
+      cgpa: user.cgpa,
+      currentPercentage: user.currentPercentage,
+      whatsappNumber: user.whatsappNumber,
+      linkedin: user.linkedin,
+      github: user.github,
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -47,6 +60,20 @@ router.put('/profile', authenticateToken, [
   body('experienceLevel').optional().trim(),
   body('preferredWorkType').optional().trim(),
   body('skills').optional().isArray(),
+  // Academic fields validation
+  body('studentId').optional().trim(),
+  body('rollNumber').optional().trim(),
+  body('institutionName').optional().trim(),
+  body('department').optional().trim(),
+  body('branch').optional().trim(),
+  body('currentYear').optional().isInt({ min: 1, max: 5 }),
+  body('currentSemester').optional().isInt({ min: 1, max: 10 }),
+  body('cgpa').optional().isFloat({ min: 0, max: 10 }),
+  body('currentPercentage').optional().isFloat({ min: 0, max: 100 }),
+  body('whatsappNumber').optional().trim(),
+  body('linkedin').optional().trim(),
+  body('github').optional().trim(),
+  body('dateOfBirth').optional().trim(),
 ], async (req: AuthRequest, res: Response) => {
   try {
     const errors = validationResult(req);
@@ -61,7 +88,7 @@ router.put('/profile', authenticateToken, [
       userId,
       updateData,
       { new: true, runValidators: true }
-    );
+    ).select('-password');
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -82,6 +109,20 @@ router.put('/profile', authenticateToken, [
         experienceLevel: user.experienceLevel,
         preferredWorkType: user.preferredWorkType,
         skills: user.skills,
+        // Academic fields
+        studentId: user.studentId,
+        rollNumber: user.rollNumber,
+        institutionName: user.institutionName,
+        department: user.department,
+        branch: user.branch,
+        currentYear: user.currentYear,
+        currentSemester: user.currentSemester,
+        cgpa: user.cgpa,
+        currentPercentage: user.currentPercentage,
+        whatsappNumber: user.whatsappNumber,
+        linkedin: user.linkedin,
+        github: user.github,
+        dateOfBirth: user.dateOfBirth,
       },
     });
   } catch (error) {

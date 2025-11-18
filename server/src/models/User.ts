@@ -16,6 +16,19 @@ export interface IUser extends Document {
   skills?: string[];
   courses?: string[];
   timetable?: any;
+  // Academic fields
+  studentId?: string;
+  rollNumber?: string;
+  institutionName?: string;
+  department?: string;
+  branch?: string;
+  currentYear?: number;
+  currentSemester?: number;
+  cgpa?: number;
+  currentPercentage?: number;
+  whatsappNumber?: string;
+  linkedin?: string;
+  github?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +49,19 @@ const UserSchema: Schema = new Schema({
   skills: [{ type: String }],
   courses: [{ type: String }],
   timetable: { type: Schema.Types.Mixed },
+  // Academic fields
+  studentId: { type: String },
+  rollNumber: { type: String },
+  institutionName: { type: String },
+  department: { type: String },
+  branch: { type: String },
+  currentYear: { type: Number, min: 1, max: 5 },
+  currentSemester: { type: Number, min: 1, max: 10 },
+  cgpa: { type: Number, min: 0, max: 10 },
+  currentPercentage: { type: Number, min: 0, max: 100 },
+  whatsappNumber: { type: String },
+  linkedin: { type: String },
+  github: { type: String },
 }, {
   timestamps: true
 });

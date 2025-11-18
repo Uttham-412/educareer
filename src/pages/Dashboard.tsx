@@ -19,7 +19,10 @@ interface UserProfile {
   last_name: string;
   preferred_job_sector: string;
   current_year?: number;
+  currentYear?: number;
   profile_completed: boolean;
+  department?: string;
+  institutionName?: string;
 }
 
 export default function Dashboard() {
@@ -33,20 +36,60 @@ export default function Dashboard() {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          // Set user profile from the authenticated user data
+          // Fetch full profile from backend
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            }
+          });
+
+          if (response.ok) {
+            const profileData = await response.json();
+            
+            setUserProfile({
+              first_name: profileData.firstName || user.email?.split('@')[0] || 'Student',
+              last_name: profileData.lastName || '',
+              preferred_job_sector: profileData.occupation || 'Technology',
+              current_year: profileData.currentYear || 4,
+              currentYear: profileData.currentYear || 4,
+              profile_completed: !!(profileData.firstName && profileData.lastName),
+              department: profileData.department,
+              institutionName: profileData.institutionName
+            });
+
+            // Set year based on user's actual year
+            const yearMap: { [key: number]: string } = {
+              1: 'first',
+              2: 'second',
+              3: 'third',
+              4: 'final'
+            };
+            setSelectedYear(yearMap[profileData.currentYear || 4] || 'final');
+          } else {
+            // Fallback to user data from auth context
+            setUserProfile({
+              first_name: user.firstName || user.email?.split('@')[0] || 'Student',
+              last_name: user.lastName || '',
+              preferred_job_sector: user.occupation || 'Technology',
+              current_year: 4,
+              currentYear: 4,
+              profile_completed: !!(user.firstName && user.lastName)
+            });
+            setSelectedYear("final");
+          }
+
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          // Fallback to user data from auth context
           setUserProfile({
             first_name: user.firstName || user.email?.split('@')[0] || 'Student',
             last_name: user.lastName || '',
             preferred_job_sector: user.occupation || 'Technology',
             current_year: 4,
+            currentYear: 4,
             profile_completed: !!(user.firstName && user.lastName)
           });
-
-          // Set default to final year
           setSelectedYear("final");
-
-        } catch (error) {
-          console.error('Error setting profile:', error);
         } finally {
           setLoading(false);
         }
@@ -136,7 +179,12 @@ export default function Dashboard() {
               </Select>
               
               <div className="flex gap-2">
-                <Button variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  onClick={() => window.location.href = '/student'}
+                >
                   View Profile
                 </Button>
               </div>
@@ -179,18 +227,33 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start gap-3 hover-glow">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 hover-glow"
+                onClick={() => window.location.href = '/student'}
+              >
                 <GraduationCap className="w-4 h-4" />
                 Update Skills Profile
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-3 hover-glow">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 hover-glow"
+                onClick={() => window.location.href = '/account'}
+              >
                 <TrendingUp className="w-4 h-4" />
                 View Career Analytics
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-3 hover-glow">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 hover-glow"
+                onClick={() => window.location.href = '/resume'}
+              >
                 📄 Download Resume
               </Button>
-              <Button className="w-full gap-2 bg-gradient-primary">
+              <Button 
+                className="w-full gap-2 bg-gradient-primary"
+                onClick={() => window.location.href = '/opportunities'}
+              >
                 🚀 Explore New Opportunities
               </Button>
             </CardContent>
