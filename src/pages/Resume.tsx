@@ -174,11 +174,64 @@ export default function Resume() {
     }
   };
 
-  const downloadResume = () => {
-    toast({
-      title: "Resume Downloaded!",
-      description: "Your resume has been downloaded as PDF.",
-    });
+  const downloadResume = async () => {
+    try {
+      const resumeElement = document.getElementById('resume-preview');
+      if (!resumeElement) {
+        toast({
+          title: "Error",
+          description: "Resume preview not found. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Dynamically import html2canvas and jsPDF
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+
+      // Capture the resume as canvas
+      const canvas = await html2canvas(resumeElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      // Convert canvas to PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // Generate filename with user's name
+      const fileName = `${userProfile.firstName || 'Resume'}_${userProfile.lastName || 'CV'}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: "Resume Downloaded!",
+        description: `Your resume has been saved as ${fileName}`,
+      });
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error downloading your resume. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const generateResume = () => {
@@ -350,7 +403,9 @@ export default function Resume() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {renderSelectedTemplate()}
+              <div id="resume-preview">
+                {renderSelectedTemplate()}
+              </div>
 
               <div className="mt-4 p-3 bg-muted/50 rounded-lg">
                 <p className="text-xs text-muted-foreground text-center">
