@@ -11,6 +11,13 @@ from urllib.parse import urlparse
 
 router = APIRouter()
 
+class GitHubVerificationRequest(BaseModel):
+    github_url: str
+
+class CertificationVerificationRequest(BaseModel):
+    certification_url: str
+    title: str
+
 class PortfolioItem(BaseModel):
     user_id: str
     item_type: str  # 'certification', 'project', 'course'
@@ -23,6 +30,79 @@ class PortfolioItem(BaseModel):
 class VerificationRequest(BaseModel):
     user_id: str
     items: List[PortfolioItem]
+
+@router.post("/verify-github")
+async def verify_github_repository(request: GitHubVerificationRequest):
+    """Verify a GitHub repository URL"""
+    
+    try:
+        # Validate GitHub URL format
+        github_regex = r'^https?://(www\.)?github\.com/[\w-]+/[\w.-]+/?$'
+        if not re.match(github_regex, request.github_url):
+            raise HTTPException(status_code=400, detail="Invalid GitHub repository URL format")
+        
+        # Verify the GitHub project
+        result = await verify_github_project(request.github_url)
+        
+        if result.get('verified'):
+            return JSONResponse(content={
+                "success": True,
+                "message": f"GitHub project verified successfully! Confidence: {int(result['confidence_score'] * 100)}%",
+                "verified": True,
+                "confidence_score": result['confidence_score'],
+                "metadata": result.get('metadata', {})
+            })
+        else:
+            issues = ", ".join(result.get('issues', ['Unknown error']))
+            raise HTTPException(status_code=400, detail=f"Verification failed: {issues}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"GitHub verification failed: {str(e)}")
+
+@router.post("/verify-certification")
+async def verify_certification_link(request: CertificationVerificationRequest):
+    """Verify a certification URL"""
+    
+    try:
+        # Validate URL format
+        url_regex = r'^https?://.+\..+'
+        if not re.match(url_regex, request.certification_url):
+            raise HTTPException(status_code=400, detail="Invalid certification URL format")
+        
+        # Determine verification method based on URL
+        parsed_url = urlparse(request.certification_url)
+        domain = parsed_url.netloc.lower()
+        
+        if "coursera.org" in domain or "edx.org" in domain or "udemy.com" in domain:
+            result = await verify_course_certificate(request.certification_url)
+        elif "linkedin.com" in domain:
+            result = await verify_linkedin_certificate(request.certification_url)
+        elif "credly.com" in domain or "badgr.com" in domain:
+            result = await verify_digital_badge(request.certification_url)
+        else:
+            result = await verify_generic_url(request.certification_url)
+        
+        if result.get('verified'):
+            platform = result.get('metadata', {}).get('platform', 'Unknown')
+            confidence = int(result['confidence_score'] * 100)
+            return JSONResponse(content={
+                "success": True,
+                "message": f"Certification verified successfully on {platform}! Confidence: {confidence}%",
+                "verified": True,
+                "confidence_score": result['confidence_score'],
+                "metadata": result.get('metadata', {}),
+                "title": request.title
+            })
+        else:
+            issues = ", ".join(result.get('issues', ['Unknown error']))
+            raise HTTPException(status_code=400, detail=f"Verification failed: {issues}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Certification verification failed: {str(e)}")
 
 @router.post("/verify")
 async def verify_portfolio_items(

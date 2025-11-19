@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Calendar, Clock, BookOpen, Upload, Award, TrendingUp, FileText, CheckCircle, AlertCircle, Loader2, Download } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, BookOpen, Upload, Award, TrendingUp, FileText, CheckCircle, AlertCircle, Loader2, Download, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +46,54 @@ export default function Timetable() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Load saved timetable on component mount
+  useEffect(() => {
+    const loadSavedTimetable = async () => {
+      try {
+        console.log('🔄 Loading saved timetable...');
+        const token = localStorage.getItem('auth_token');
+        console.log('Token found for loading:', !!token);
+        
+        if (!token) {
+          console.log('No token, skipping load');
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await fetch('http://localhost:5000/api/users/timetable', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('Load response status:', response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Loaded data from backend:', data);
+          
+          if (data.timetable && Array.isArray(data.timetable) && data.timetable.length > 0) {
+            console.log('✅ Timetable found, setting state');
+            setUploadedTimetable(data.timetable);
+            setUploadStatus('success');
+          } else {
+            console.log('No timetable data found in response');
+          }
+        } else {
+          console.error('Failed to load timetable:', response.status);
+        }
+      } catch (error) {
+        console.error('❌ Error loading saved timetable:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSavedTimetable();
+  }, []);
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -127,42 +174,55 @@ export default function Timetable() {
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     const schedule: DaySchedule[] = [];
     
-    // Expected CSV format: Day,Subject,Professor,Room,Time,Duration,Type
-    const requiredHeaders = ['day', 'subject', 'time'];
+    // Only "subject" column is required - all others are optional
+    const requiredHeaders = ['subject'];
     const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
     
     if (missingHeaders.length > 0) {
-      throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+      throw new Error(`Missing required column: "subject". Please make sure your CSV has a "Subject" column with course names.`);
     }
     
     const dayMap = new Map<string, ClassSlot[]>();
+    const defaultDay = 'Monday'; // Default day if not specified
     
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
       
-      if (values.length !== headers.length) continue;
+      // Skip empty lines
+      if (values.length === 0 || !values[0]) continue;
       
       const rowData: Record<string, string> = {};
       headers.forEach((header, index) => {
-        rowData[header] = values[index];
+        if (index < values.length) {
+          rowData[header] = values[index];
+        }
       });
+      
+      // Skip if subject is empty
+      if (!rowData.subject || rowData.subject.trim() === '') continue;
       
       const classSlot: ClassSlot = {
         id: `${i}`,
-        subject: rowData.subject || 'Unknown Subject',
+        subject: rowData.subject.trim(),
         professor: rowData.professor || 'TBA',
         room: rowData.room || 'TBA',
-        time: rowData.time || '00:00',
+        time: rowData.time || '09:00',
         duration: parseInt(rowData.duration) || 60,
         type: (rowData.type?.toLowerCase() as ClassSlot['type']) || 'lecture',
         difficulty: (rowData.difficulty?.toLowerCase() as ClassSlot['difficulty']) || 'medium'
       };
       
-      const day = rowData.day;
+      // Use provided day or default to Monday
+      const day = rowData.day || defaultDay;
       if (!dayMap.has(day)) {
         dayMap.set(day, []);
       }
       dayMap.get(day)!.push(classSlot);
+    }
+    
+    // If no valid courses found
+    if (dayMap.size === 0) {
+      throw new Error('No valid subjects found in the CSV file. Please check your file format.');
     }
     
     // Convert map to schedule array
@@ -176,19 +236,31 @@ export default function Timetable() {
     
     setUploadedTimetable(schedule);
     await saveTimetableToDatabase(schedule);
+    
+    toast({
+      title: "Timetable Uploaded! 🎉",
+      description: `Successfully imported ${schedule.flatMap(d => d.classes).length} subjects from your CSV file.`,
+    });
   };
 
   const parseExcelFile = async (file: File) => {
-    // For Excel files, we'll provide instructions for now
-    // In a real implementation, you'd use a library like xlsx
-    throw new Error(`Excel file parsing is not yet implemented. 
-    
-To use your Excel file:
-1. Open your Excel file
-2. Save As → CSV (Comma delimited)
-3. Upload the CSV file instead
+    // For now, guide users to convert to CSV
+    // Excel parsing requires additional library (xlsx)
+    throw new Error(`Excel file detected! Please convert to CSV first:
 
-Or use the manual entry option to add classes one by one.`);
+📝 Quick Steps:
+1. Open your Excel file
+2. Click "File" → "Save As"
+3. Choose "CSV (Comma delimited) (*.csv)"
+4. Save and upload the CSV file
+
+💡 Tip: Only the "Subject" column is required. Other columns (Day, Time, Professor, Room) are optional!
+
+Example CSV format:
+Subject
+Data Structures
+Machine Learning
+Web Development`);
   };
 
   const parsePDFFile = async (file: File) => {
@@ -291,9 +363,19 @@ Or use the manual entry option to add classes one by one.`);
 
   const saveTimetableToDatabase = async (schedule: DaySchedule[]) => {
     try {
-      const token = localStorage.getItem('token');
+      console.log('🔄 Attempting to save timetable to database...');
+      console.log('Schedule data:', schedule);
+      
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      console.log('Token found:', !!token);
+      
       if (!token) {
-        console.error('No authentication token found');
+        console.error('❌ No authentication token found');
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to save your timetable.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -301,6 +383,15 @@ Or use the manual entry option to add classes one by one.`);
       const courses = schedule.flatMap(day => 
         day.classes.map(c => c.subject)
       ).filter((course, index, arr) => arr.indexOf(course) === index);
+      
+      console.log('Extracted courses:', courses);
+
+      const payload = {
+        timetable: schedule,
+        courses
+      };
+      
+      console.log('Sending payload to backend:', payload);
 
       // Save to backend
       const response = await fetch('http://localhost:5000/api/users/timetable', {
@@ -309,41 +400,50 @@ Or use the manual entry option to add classes one by one.`);
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          timetable: schedule,
-          courses
-        })
+        body: JSON.stringify(payload)
       });
 
+      console.log('Response status:', response.status);
+
       if (response.ok) {
-        console.log('Timetable saved successfully');
+        const data = await response.json();
+        console.log('✅ Timetable saved successfully to database:', data);
         
         toast({
-          title: "Timetable Saved!",
+          title: "Timetable Saved! ✅",
           description: "Your timetable has been saved and we're finding relevant courses for you.",
         });
         
         // Trigger course recommendations from AI backend
         await fetchCourseRecommendations(courses);
       } else {
-        console.error('Failed to save timetable');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to save timetable:', response.status, errorData);
         toast({
           title: "Save Failed",
-          description: "Failed to save your timetable. Please try again.",
+          description: errorData.error || "Failed to save your timetable. Please try again.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('Failed to save timetable to database:', error);
+      console.error('❌ Exception while saving timetable:', error);
+      toast({
+        title: "Save Error",
+        description: "An error occurred while saving. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const fetchCourseRecommendations = async (courses: string[]) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
 
-      if (!userId) return;
+      if (!userId) {
+        console.log('No userId found, skipping recommendations');
+        return;
+      }
 
       // Call AI backend to get personalized recommendations based on courses
       const response = await fetch('http://localhost:8000/api/v1/recommendations/personalized', {
@@ -381,7 +481,7 @@ Or use the manual entry option to add classes one by one.`);
 
   const createNotification = async (notification: { title: string; description: string; type: string }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       if (!token) return;
 
       await fetch('http://localhost:5000/api/notifications', {
@@ -470,6 +570,41 @@ Or use the manual entry option to add classes one by one.`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+  };
+
+  const deleteTimetable = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      // Delete from database
+      const response = await fetch('http://localhost:5000/api/users/timetable', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setUploadedTimetable(null);
+        setUploadStatus('idle');
+        setUploadError(null);
+        
+        toast({
+          title: "Timetable Deleted",
+          description: "Your timetable has been permanently deleted.",
+        });
+      } else {
+        throw new Error('Failed to delete timetable');
+      }
+    } catch (error) {
+      console.error('Error deleting timetable:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete your timetable. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -593,6 +728,18 @@ Or use the manual entry option to add classes one by one.`);
 
   const certificationRecommendations = generateCertificationRecommendations();
 
+  // Show loading state while fetching saved timetable
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
+          <p className="text-muted-foreground">Loading your timetable...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -694,25 +841,40 @@ Or use the manual entry option to add classes one by one.`);
               )}
               
               {uploadStatus !== 'error' && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-3">
                   <p className="text-xs text-muted-foreground">
                     Supported formats: CSV, Excel (.xlsx, .xls), PDF, Images (JPG, PNG)
                   </p>
                   <p className="text-xs text-primary font-medium">
                     ✨ AI-Powered: PDF and Image files use OCR + NLP for automatic course extraction!
                   </p>
-                  <div className="text-xs text-muted-foreground">
-                    <p className="font-medium mb-1">CSV Format Example:</p>
-                    <code className="bg-muted px-2 py-1 rounded text-xs">
-                      Day,Subject,Professor,Room,Time,Duration,Type,Difficulty
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+                    <p className="text-xs font-semibold text-blue-900 mb-2">📝 Simple CSV Format (Only Subject Required!):</p>
+                    <code className="bg-white px-2 py-1 rounded text-xs block mb-2 text-blue-800">
+                      Subject<br/>
+                      Data Structures<br/>
+                      Machine Learning<br/>
+                      Web Development
                     </code>
-                    <div className="mt-2">
+                    <p className="text-xs text-blue-700 mb-2">
+                      💡 Optional columns: Day, Time, Professor, Room, Duration, Type
+                    </p>
+                    <div className="flex gap-2">
+                      <a 
+                        href="/sample-timetable-simple.csv" 
+                        download="sample-timetable-simple.csv"
+                        className="text-xs text-blue-600 hover:text-blue-800 underline font-medium"
+                      >
+                        📥 Download Simple Template
+                      </a>
+                      <span className="text-xs text-blue-400">|</span>
                       <a 
                         href="/sample-timetable.csv" 
                         download="sample-timetable.csv"
-                        className="text-primary hover:text-primary/80 underline text-xs"
+                        className="text-xs text-blue-600 hover:text-blue-800 underline"
                       >
-                        Download Sample CSV Template
+                        Download Full Template
                       </a>
                     </div>
                   </div>
@@ -775,6 +937,15 @@ Or use the manual entry option to add classes one by one.`);
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={deleteTimetable}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
                 </Button>
               </div>
             </div>

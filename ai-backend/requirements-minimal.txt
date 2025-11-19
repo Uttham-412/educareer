@@ -1,0 +1,19 @@
+# Core Framework
+fastapi==0.100.0
+uvicorn==0.23.0
+python-multipart==0.0.6
+
+# Database (MongoDB only)
+motor==3.3.1
+pymongo==4.5.0
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==1.10.12
+httpx==0.24.1
+
+# Notifications
+requests==2.31.0
+
+# Basic dependencies
+jinja2==3.1.2
