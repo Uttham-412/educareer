@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # Import routers
-from app.routers import personalized_recommendations, timetable_extraction, notifications
+from app.routers import personalized_recommendations, timetable_extraction, notifications, portfolio_verification
 
 # Load environment variables
 load_dotenv()
@@ -42,6 +42,12 @@ app.include_router(
     notifications.router,
     prefix="/api/v1/notifications",
     tags=["Notifications"]
+)
+
+app.include_router(
+    portfolio_verification.router,
+    prefix="/api/v1/portfolio",
+    tags=["Portfolio Verification"]
 )
 
 @app.get("/")

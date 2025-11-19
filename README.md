@@ -5,6 +5,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 ## 🌟 Features
 
 ### 🤖 AI-Powered Recommendations
+
 - **Smart Course Analysis**: Extract courses from timetables using OCR and NLP
 - **Personalized Certifications**: AI recommendations based on your academic profile
 - **Web Scraping**: Real-time course data from Coursera, Udemy, LinkedIn Learning
@@ -12,6 +13,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 - **Match Scoring**: Get percentage match scores for each recommendation
 
 ### 📄 Intelligent Resume Builder
+
 - **Auto-Generated Resumes**: AI creates professional resumes from your profile
 - **4 Professional Templates**: Modern, Classic, Creative, and Minimalist designs
 - **Dynamic Data**: Resumes use real user data (no hardcoded values)
@@ -19,12 +21,14 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 - **PDF Export**: Download professional PDFs instantly
 
 ### 🔍 Portfolio Verification
+
 - **Multi-Platform Integration**: Verify GitHub, Coursera, edX, LinkedIn certificates
 - **Automated Validation**: AI checks and scores your achievements
 - **Digital Portfolio**: Centralized showcase of all your accomplishments
 - **Credibility Scoring**: Build trust with verified credentials
 
 ### 📱 Smart Notifications (NEW!)
+
 - **SMS Alerts via Twilio**: Instant notifications on your phone
 - **Multi-Channel**: Email, SMS, and WhatsApp support
 - **Login Alerts**: Security notifications when you log in
@@ -34,6 +38,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 - **Real Database**: All notifications stored and retrieved from MongoDB
 
 ### 💾 Data Persistence
+
 - **Timetable Storage**: Uploaded timetables saved to database
 - **Course Tracking**: Extracted courses stored in user profile
 - **Notification History**: Complete history of all notifications
@@ -42,6 +47,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 ## 🏗 Architecture
 
 ### Frontend (React + TypeScript)
+
 - **React 18**: Modern React with hooks and concurrent features
 - **TypeScript**: Type-safe development
 - **Vite**: Lightning-fast build tool
@@ -49,6 +55,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 - **State Management**: Context API for global state
 
 ### Backend (Node.js + Express)
+
 - **RESTful API**: Clean and documented API endpoints
 - **JWT Authentication**: Secure token-based authentication
 - **MongoDB + Mongoose**: Flexible NoSQL database
@@ -56,6 +63,7 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 - **Notification Service**: Integrated SMS/Email notifications
 
 ### AI Backend (Python + FastAPI)
+
 - **FastAPI**: Modern, fast web framework
 - **Machine Learning**: BERT, DistilBERT, Sentence Transformers
 - **OCR**: Tesseract for text extraction from images
@@ -69,22 +77,24 @@ A comprehensive AI-powered platform that helps students bridge the gap between e
 
 Before you begin, ensure you have the following installed:
 
-| Software | Version | Download Link |
-|----------|---------|---------------|
-| Node.js | 16+ | https://nodejs.org/ |
-| Python | 3.8+ | https://www.python.org/ |
-| MongoDB | Latest | https://www.mongodb.com/try/download/community |
-| Git | Latest | https://git-scm.com/ |
+| Software | Version | Download Link                                  |
+| -------- | ------- | ---------------------------------------------- |
+| Node.js  | 16+     | https://nodejs.org/                            |
+| Python   | 3.8+    | https://www.python.org/                        |
+| MongoDB  | Latest  | https://www.mongodb.com/try/download/community |
+| Git      | Latest  | https://git-scm.com/                           |
 
 ### Installation Steps
 
 #### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/yourusername/edu-career-ai.git
 cd edu-career-ai/edu-career-ai
 ```
 
 #### 2. Setup MongoDB
+
 ```bash
 # Windows
 mongod --dbpath "C:\data\db"
@@ -96,6 +106,7 @@ mongod --dbpath /data/db
 Keep this terminal open. MongoDB must be running for the application to work.
 
 #### 3. Setup Frontend
+
 ```bash
 # Install dependencies
 npm install
@@ -107,6 +118,7 @@ npm run dev
 **Frontend will run on**: http://localhost:8080
 
 #### 4. Setup Node.js Backend
+
 ```bash
 # Open new terminal
 cd server
@@ -127,6 +139,7 @@ npm run dev
 **Backend will run on**: http://localhost:5000
 
 #### 5. Setup AI Backend
+
 ```bash
 # Open new terminal
 cd ai-backend
@@ -152,6 +165,7 @@ python main.py
 ### 6. Access the Application
 
 Open your browser and navigate to:
+
 - **Main App**: http://localhost:8080
 - **API Health**: http://localhost:5000/api/health
 - **AI API Docs**: http://localhost:8000/docs
@@ -167,6 +181,7 @@ Open your browser and navigate to:
 ## 📊 Technology Stack
 
 ### Frontend Technologies
+
 - **React 18**: Modern React with hooks and concurrent features
 - **TypeScript**: Type-safe development
 - **Vite**: Fast build tool and development server
@@ -174,6 +189,7 @@ Open your browser and navigate to:
 - **Lucide React**: Beautiful icon library
 
 ### Backend Technologies
+
 - **Node.js**: JavaScript runtime for server-side development
 - **Express.js**: Web application framework
 - **MongoDB**: NoSQL database for flexible data storage
@@ -182,6 +198,7 @@ Open your browser and navigate to:
 - **Bcrypt**: Password hashing and security
 
 ### AI/ML Technologies
+
 - **Python 3.8+**: Core programming language
 - **FastAPI**: Modern, fast web framework for APIs
 - **🤗 Transformers**: State-of-the-art NLP models
@@ -193,6 +210,7 @@ Open your browser and navigate to:
 - **OpenCV**: Computer vision and image processing
 
 ### Document Processing
+
 - **PyMuPDF**: PDF text extraction
 - **PDFMiner**: Alternative PDF processing
 - **Pillow**: Image manipulation and processing
@@ -200,6 +218,7 @@ Open your browser and navigate to:
 - **WeasyPrint**: HTML to PDF conversion
 
 ### Communication & Notifications
+
 - **Twilio**: SMS and WhatsApp messaging
 - **SMTP**: Email notifications
 - **Celery**: Background task processing
@@ -210,12 +229,14 @@ Open your browser and navigate to:
 ### Environment Variables
 
 #### Frontend (.env)
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 VITE_AI_API_URL=http://localhost:8000/api/v1
 ```
 
 #### Node.js Backend (server/.env)
+
 ```env
 MONGODB_URI=mongodb://localhost:27017/edu-career-ai
 JWT_SECRET=your-super-secret-jwt-key
@@ -224,6 +245,7 @@ NODE_ENV=development
 ```
 
 #### AI Backend (ai-backend/.env)
+
 ```env
 MONGODB_URI=mongodb://localhost:27017/edu-career-ai
 DATABASE_URL=postgresql://user:password@localhost/educareer_ai
@@ -239,6 +261,7 @@ GITHUB_TOKEN=your-github-token
 ## 📚 API Documentation
 
 ### Node.js API Endpoints
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `GET /api/users/profile` - Get user profile
@@ -247,6 +270,7 @@ GITHUB_TOKEN=your-github-token
 - `POST /api/courses` - Add new course
 
 ### AI API Endpoints
+
 - `POST /api/v1/timetable/upload` - Upload and process timetable
 - `POST /api/v1/recommendations/certifications` - Get certification recommendations
 - `POST /api/v1/recommendations/projects` - Get project recommendations
@@ -257,11 +281,13 @@ GITHUB_TOKEN=your-github-token
 ## 🧪 Testing
 
 ### Frontend Testing
+
 ```bash
 npm run test
 ```
 
 ### Backend Testing
+
 ```bash
 # Node.js backend
 cd server
@@ -273,19 +299,23 @@ python -m pytest
 ```
 
 ### API Testing
+
 Use the interactive API documentation at:
+
 - Node.js API: http://localhost:5000/api-docs
 - AI API: http://localhost:8000/docs
 
 ## 🚀 Deployment
 
 ### Frontend Deployment (Vercel/Netlify)
+
 ```bash
 npm run build
 # Deploy the dist/ folder
 ```
 
 ### Backend Deployment (Railway/Render)
+
 ```bash
 # Node.js backend
 cd server
@@ -299,6 +329,7 @@ python main.py
 ```
 
 ### Docker Deployment
+
 ```bash
 # Build and run with Docker Compose
 docker-compose up --build
@@ -313,6 +344,7 @@ docker-compose up --build
 5. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow TypeScript best practices for frontend
 - Use ESLint and Prettier for code formatting
 - Write tests for new features
@@ -326,12 +358,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 ### Common Issues
+
 1. **MongoDB Connection**: Ensure MongoDB is running on localhost:27017
 2. **Python Dependencies**: Use Python 3.8+ and install all requirements
 3. **Port Conflicts**: Check if ports 3000, 5000, 8000 are available
 4. **Environment Variables**: Verify all .env files are properly configured
 
 ### Getting Help
+
 - 📖 Check the [Documentation](docs/)
 - 🐛 Report bugs in [Issues](https://github.com/yourusername/edu-career-ai/issues)
 - 💬 Join our [Discord Community](https://discord.gg/educareer-ai)
@@ -340,6 +374,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔮 Roadmap
 
 ### Phase 1 (Current)
+
 - ✅ Basic user authentication and profiles
 - ✅ Timetable processing and course extraction
 - ✅ AI-powered recommendations
@@ -347,6 +382,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Portfolio verification system
 
 ### Phase 2 (Next)
+
 - 🔄 Real-time notifications and alerts
 - 🔄 Advanced analytics and insights
 - 🔄 Mobile app development
@@ -354,6 +390,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🔄 Peer learning communities
 
 ### Phase 3 (Future)
+
 - 📋 AI-powered interview preparation
 - 📋 Skill assessment and certification
 - 📋 Mentorship matching system
@@ -382,20 +419,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the EduCareer AI Team**
 
-*Empowering students to bridge the gap between education and career success through intelligent technology.*
-
+_Empowering students to bridge the gap between education and career success through intelligent technology._
 
 ## ⚙️ Configuration
 
 ### Environment Variables
 
 #### Frontend (.env)
+
 ```env
 VITE_API_URL=http://localhost:5000
 VITE_AI_API_URL=http://localhost:8000
 ```
 
 #### Backend (.env)
+
 ```env
 # Server
 PORT=5000
@@ -413,6 +451,7 @@ CORS_ORIGIN=http://localhost:8080
 ```
 
 #### AI Backend (.env)
+
 ```env
 # Database
 MONGODB_URI=mongodb://localhost:27017/edu-career-ai
@@ -464,6 +503,7 @@ BERT_MODEL=distilbert-base-uncased
 ## 🎯 Key Features Explained
 
 ### 1. Timetable Processing with AI
+
 - Upload PDF or image of your timetable
 - OCR extracts text using Tesseract
 - NLP identifies courses using BERT
@@ -471,6 +511,7 @@ BERT_MODEL=distilbert-base-uncased
 - Automatic course recommendations triggered
 
 ### 2. Real-Time Notifications
+
 - **Login Alert**: SMS when you log in (security)
 - **Welcome Message**: SMS/Email when you register
 - **Profile Reminder**: SMS if profile is incomplete
@@ -479,6 +520,7 @@ BERT_MODEL=distilbert-base-uncased
 - **Job Alerts**: SMS for matching job opportunities
 
 ### 3. Personalized Recommendations
+
 - Web scraping from Coursera, Udemy, LinkedIn
 - AI matching based on your skills and courses
 - Match percentage scoring (0-100%)
@@ -486,6 +528,7 @@ BERT_MODEL=distilbert-base-uncased
 - Saved to database
 
 ### 4. Dynamic Resume Builder
+
 - 4 professional templates
 - Auto-populated with your profile data
 - No hardcoded values
@@ -493,6 +536,7 @@ BERT_MODEL=distilbert-base-uncased
 - Job-specific optimization
 
 ### 5. Portfolio Verification
+
 - Verify GitHub repositories
 - Validate Coursera certificates
 - Check LinkedIn profiles
@@ -506,6 +550,7 @@ BERT_MODEL=distilbert-base-uncased
 ### Manual Testing
 
 1. **Test Registration**:
+
    ```
    - Register new account
    - Check email for welcome message
@@ -513,6 +558,7 @@ BERT_MODEL=distilbert-base-uncased
    ```
 
 2. **Test Login**:
+
    ```
    - Login with credentials
    - Check phone for security SMS
@@ -520,6 +566,7 @@ BERT_MODEL=distilbert-base-uncased
    ```
 
 3. **Test Timetable Upload**:
+
    ```
    - Go to Timetable page
    - Upload PDF or image
@@ -529,6 +576,7 @@ BERT_MODEL=distilbert-base-uncased
    ```
 
 4. **Test Notifications**:
+
    ```
    - Go to Notifications page
    - Should see real notifications (not fake data)
@@ -571,7 +619,9 @@ curl -X POST http://localhost:8000/api/v1/notifications/send-multi \
 ## 📝 Common Issues & Solutions
 
 ### Issue: MongoDB Connection Failed
+
 **Solution**:
+
 ```bash
 # Make sure MongoDB is running
 mongod --dbpath "C:\data\db"
@@ -581,14 +631,18 @@ netstat -ano | findstr :27017
 ```
 
 ### Issue: SMS Not Sending
+
 **Solution**:
+
 - Check Twilio credentials in `.env`
 - Verify phone number format (+country_code + number)
 - Check Twilio account has credit
 - For trial accounts, verify recipient phone numbers
 
 ### Issue: Frontend Not Loading
+
 **Solution**:
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -597,7 +651,9 @@ npm run dev
 ```
 
 ### Issue: AI Backend Errors
+
 **Solution**:
+
 ```bash
 # Reinstall Python dependencies
 pip install -r requirements.txt

@@ -51,38 +51,23 @@ export default function Resume() {
   const [showTemplateSelection, setShowTemplateSelection] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({});
   
-  const [skills, setSkills] = useState<Skill[]>([
-    { id: "1", name: "React.js", level: "Advanced" },
-    { id: "2", name: "JavaScript", level: "Advanced" },
-    { id: "3", name: "TypeScript", level: "Intermediate" },
-    { id: "4", name: "Node.js", level: "Intermediate" },
-  ]);
+  const [skills, setSkills] = useState<Skill[]>([]);
 
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "1",
-      title: "E-commerce Platform",
-      description: "Full-stack e-commerce solution with React, Node.js, and MongoDB",
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-    },
-    {
-      id: "2",
-      title: "Task Management App",
-      description: "Collaborative task management tool with real-time updates",
-      technologies: ["React", "Firebase", "Material-UI"],
-    },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const [certifications, setCertifications] = useState<Certification[]>([
-    { id: "1", name: "React Developer Certification", issuer: "Meta", date: "2024-01" },
-    { id: "2", name: "JavaScript Algorithms", issuer: "freeCodeCamp", date: "2023-12" },
-  ]);
+  const [certifications, setCertifications] = useState<Certification[]>([]);
 
   const [newSkill, setNewSkill] = useState("");
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
     technologies: "",
+  });
+
+  const [newCertification, setNewCertification] = useState({
+    name: "",
+    issuer: "",
+    date: "",
   });
 
   // Fetch user profile data on component mount
@@ -168,10 +153,38 @@ export default function Resume() {
         id: Date.now().toString(),
         title: newProject.title,
         description: newProject.description,
-        technologies: newProject.technologies.split(",").map(t => t.trim()),
+        technologies: newProject.technologies.split(",").map(t => t.trim()).filter(t => t),
       }]);
       setNewProject({ title: "", description: "", technologies: "" });
+      toast({
+        title: "Project Added!",
+        description: "Your project has been added to your resume.",
+      });
     }
+  };
+
+  const removeProject = (id: string) => {
+    setProjects(projects.filter(project => project.id !== id));
+  };
+
+  const addCertification = () => {
+    if (newCertification.name.trim() && newCertification.issuer.trim()) {
+      setCertifications([...certifications, {
+        id: Date.now().toString(),
+        name: newCertification.name,
+        issuer: newCertification.issuer,
+        date: newCertification.date || new Date().toISOString().split('T')[0],
+      }]);
+      setNewCertification({ name: "", issuer: "", date: "" });
+      toast({
+        title: "Certification Added!",
+        description: "Your certification has been added to your resume.",
+      });
+    }
+  };
+
+  const removeCertification = (id: string) => {
+    setCertifications(certifications.filter(cert => cert.id !== id));
   };
 
   const downloadResume = async () => {
@@ -308,17 +321,23 @@ export default function Resume() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <Badge key={skill.id} variant="secondary" className="gap-2">
-                    {skill.name}
-                    <button
-                      onClick={() => removeSkill(skill.id)}
-                      className="hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
+                {skills.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    No skills added yet. Add your skills above to get started.
+                  </p>
+                ) : (
+                  skills.map((skill) => (
+                    <Badge key={skill.id} variant="secondary" className="gap-2">
+                      {skill.name}
+                      <button
+                        onClick={() => removeSkill(skill.id)}
+                        className="hover:text-destructive"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -353,19 +372,31 @@ export default function Resume() {
               <Separator />
 
               <div className="space-y-3">
-                {projects.map((project) => (
-                  <div key={project.id} className="p-3 border rounded-lg">
-                    <h4 className="font-medium">{project.title}</h4>
-                    <p className="text-sm text-muted-foreground">{project.description}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {project.technologies.map((tech) => (
-                        <Badge key={tech} variant="outline" className="text-xs">
-                          {tech}
-                        </Badge>
-                      ))}
+                {projects.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic text-center py-4">
+                    No projects added yet. Add your first project above!
+                  </p>
+                ) : (
+                  projects.map((project) => (
+                    <div key={project.id} className="p-3 border rounded-lg relative group">
+                      <button
+                        onClick={() => removeProject(project.id)}
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <h4 className="font-medium pr-6">{project.title}</h4>
+                      <p className="text-sm text-muted-foreground">{project.description}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {project.technologies.map((tech, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -375,19 +406,54 @@ export default function Resume() {
             <CardHeader>
               <CardTitle className="text-lg">Certifications</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="space-y-3">
-                {certifications.map((cert) => (
-                  <div key={cert.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">{cert.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {cert.issuer} • {cert.date}
-                      </p>
+                <Input
+                  placeholder="Certification name..."
+                  value={newCertification.name}
+                  onChange={(e) => setNewCertification({...newCertification, name: e.target.value})}
+                />
+                <Input
+                  placeholder="Issuing organization..."
+                  value={newCertification.issuer}
+                  onChange={(e) => setNewCertification({...newCertification, issuer: e.target.value})}
+                />
+                <Input
+                  type="month"
+                  placeholder="Date obtained..."
+                  value={newCertification.date}
+                  onChange={(e) => setNewCertification({...newCertification, date: e.target.value})}
+                />
+                <Button onClick={addCertification} size="sm" className="w-full">
+                  Add Certification
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                {certifications.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic text-center py-4">
+                    No certifications added yet. Add your first certification above!
+                  </p>
+                ) : (
+                  certifications.map((cert) => (
+                    <div key={cert.id} className="flex items-center justify-between p-3 border rounded-lg group">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{cert.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {cert.issuer} • {cert.date}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removeCertification(cert.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive ml-2"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <Badge variant="outline">Verified</Badge>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
