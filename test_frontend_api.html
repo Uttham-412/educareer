@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Course Recommendations API</title>
+</head>
+<body>
+    <h1>Test Course Recommendations</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/timetable/get-recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        courses: [
+                            { name: 'Data Structures', code: 'CS201' },
+                            { name: 'Machine Learning', code: 'CS401' },
+                            { name: 'Web Development', code: 'CS301' }
+                        ],
+                        user_profile: {
+                            current_year: 2,
+                            interests: ['programming'],
+                            target_career: 'software engineer',
+                            experience_level: 'intermediate'
+                        },
+                        limit: 50
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h2>Success!</h2>
+                        <p>Total Courses: ${data.data.total_courses}</p>
+                        <p>Platforms: ${data.data.platforms_searched?.join(', ')}</p>
+                        <h3>Courses:</h3>
+                        <ul>
+                            ${data.data.courses.slice(0, 10).map(c => `
+                                <li>${c.title} - ${c.platform} (${(c.relevance_score * 100).toFixed(1)}%)</li>
+                            `).join('')}
+                        </ul>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

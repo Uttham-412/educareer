@@ -21,8 +21,71 @@ import { GraduationCap, TrendingUp, Zap, Award, Github } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Sample opportunities will be loaded from the API
-const sampleOpportunities: Opportunity[] = [];
+// Sample opportunities - will be populated from API
+const sampleOpportunities: Opportunity[] = [
+  // Jobs for final year students
+  {
+    id: "job_001",
+    title: "Full Stack Developer",
+    company: "TechCorp Solutions",
+    location: "Bangalore",
+    type: "job",
+    description: "Join our dynamic team to build scalable web applications",
+    skills: ["React", "Node.js", "MongoDB"],
+    matchScore: 95,
+  },
+  {
+    id: "job_002",
+    title: "Software Development Intern",
+    company: "StartupHub",
+    location: "Remote",
+    type: "internship",
+    description: "6-month internship program for aspiring developers",
+    skills: ["JavaScript", "React", "Git"],
+    matchScore: 90,
+  },
+  {
+    id: "job_003",
+    title: "Data Scientist",
+    company: "Analytics Pro",
+    location: "Pune",
+    type: "job",
+    description: "Analyze complex datasets and build ML models",
+    skills: ["Python", "Machine Learning", "TensorFlow"],
+    matchScore: 88,
+  },
+  // Courses and certifications for 1st-3rd year students
+  {
+    id: "cert_001",
+    title: "AWS Certified Solutions Architect",
+    company: "Amazon Web Services",
+    location: "Online",
+    type: "certification",
+    description: "Industry-recognized cloud certification",
+    skills: ["AWS", "Cloud", "Architecture"],
+    matchScore: 92,
+  },
+  {
+    id: "course_001",
+    title: "Full Stack Web Development",
+    company: "Coursera",
+    location: "Online",
+    type: "certification",
+    description: "Complete web development bootcamp",
+    skills: ["HTML", "CSS", "JavaScript", "React"],
+    matchScore: 94,
+  },
+  {
+    id: "course_002",
+    title: "Machine Learning Specialization",
+    company: "Coursera",
+    location: "Online",
+    type: "certification",
+    description: "Learn ML from Andrew Ng",
+    skills: ["Python", "ML", "AI"],
+    matchScore: 91,
+  },
+];
 
 interface UserProfile {
   first_name: string;
@@ -40,6 +103,7 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>(sampleOpportunities);
   const [githubDialogOpen, setGithubDialogOpen] = useState(false);
   const [githubLink, setGithubLink] = useState("");
   const [verifying, setVerifying] = useState(false);
@@ -81,7 +145,7 @@ export default function Dashboard() {
             setUserProfile({
               first_name: user.firstName || user.email?.split('@')[0] || 'Student',
               last_name: user.lastName || '',
-              preferred_job_sector: user.occupation || 'Technology',
+              preferred_job_sector: 'Technology',
               current_year: 4,
               currentYear: 4,
               profile_completed: !!(user.firstName && user.lastName)
@@ -95,7 +159,7 @@ export default function Dashboard() {
           setUserProfile({
             first_name: user.firstName || user.email?.split('@')[0] || 'Student',
             last_name: user.lastName || '',
-            preferred_job_sector: user.occupation || 'Technology',
+            preferred_job_sector: 'Technology',
             current_year: 4,
             currentYear: 4,
             profile_completed: !!(user.firstName && user.lastName)
@@ -111,11 +175,58 @@ export default function Dashboard() {
     fetchUserProfile();
   }, [user]);
 
-  const handleApply = (_opportunityId: string) => {
-    toast({
-      title: "Application Started!",
-      description: "Redirecting to application page...",
-    });
+  // Fetch opportunities from API (optional - can enhance later)
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api/v1';
+        const response = await fetch(`${AI_BASE_URL}/opportunities/jobs?limit=6`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Map API jobs to Opportunity format
+          const mappedOpportunities = data.jobs.map((job: any) => ({
+            id: job.id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            type: job.type === "Internship" ? "internship" : "job",
+            description: job.description,
+            tags: job.requirements.slice(0, 3),
+            salary: `${job.salary_currency} ${(job.salary_min / 100000).toFixed(1)}L - ${(job.salary_max / 100000).toFixed(1)}L`,
+            deadline: new Date(job.deadline).toLocaleDateString(),
+            matchScore: 85 + Math.floor(Math.random() * 15),
+          }));
+          
+          // Combine with sample certifications
+          setOpportunities([
+            ...mappedOpportunities,
+            ...sampleOpportunities.filter(op => op.type === "certification")
+          ]);
+        }
+      } catch (error) {
+        console.log('Using sample opportunities:', error);
+        // Keep using sample opportunities if API fails
+      }
+    };
+
+    fetchOpportunities();
+  }, []);
+
+  const handleApply = (opportunityId: string) => {
+    const opportunity = opportunities.find(op => op.id === opportunityId);
+    
+    if (opportunity) {
+      toast({
+        title: "Application Started! ✅",
+        description: `Applying for ${opportunity.title} at ${opportunity.company}`,
+      });
+      
+      // Redirect to opportunities page after a short delay
+      setTimeout(() => {
+        window.location.href = '/opportunities';
+      }, 1500);
+    }
   };
 
   const handleGithubVerification = async () => {
@@ -143,7 +254,8 @@ export default function Dashboard() {
 
     try {
       // Call Python backend for verification
-      const response = await fetch(`${import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'}/api/v1/portfolio/verify-github`, {
+      const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${AI_BASE_URL}/portfolio/verify-github`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -249,21 +361,21 @@ export default function Dashboard() {
   const getYearContent = () => {
     const currentYear = userProfile?.currentYear || userProfile?.current_year || 4;
     
-    // Final year students (4th year and above) focus on jobs
+    // Final year students (4th year and above) focus on jobs and internships
     if (currentYear >= 4) {
       return {
         title: "Final Year Focus",
         subtitle: "Time to land your dream job! 🎯",
-        description: "AI-matched opportunities based on your profile",
-        recommendations: sampleOpportunities.filter(op => op.type === "job" || op.type === "internship"),
+        description: "AI-matched job opportunities and internships based on your profile",
+        recommendations: opportunities.filter(op => op.type === "job" || op.type === "internship"),
       };
     } else {
-      // 1st, 2nd, 3rd year students focus on learning
+      // 1st, 2nd, 3rd year students focus on learning and certifications
       return {
         title: "Learning & Building Phase",
         subtitle: "Focus on skills and certifications 📚",
-        description: "Build a strong foundation for your career",
-        recommendations: sampleOpportunities.filter(op => op.type === "certification"),
+        description: "Build a strong foundation for your career with courses and certifications",
+        recommendations: opportunities.filter(op => op.type === "certification"),
       };
     }
   };

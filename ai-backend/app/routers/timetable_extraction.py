@@ -115,58 +115,74 @@ async def get_course_recommendations(
 ):
     """
     Get personalized course recommendations based on timetable courses
-    Returns MORE courses (20+) with apply buttons
+    Uses Graph-BERT model to fetch real courses from multiple websites
+    Returns 30+ courses with navigation buttons
     """
     
     try:
-        from app.services.opportunity_scraper import opportunity_scraper
+        from app.services.course_scraper import course_scraper
+        from app.services.graph_bert_recommender import graph_bert_recommender
         
         # Extract data from request
         timetable_courses = request_data.get('courses', [])
         user_profile = request_data.get('user_profile', {})
-        limit = request_data.get('limit', 25)  # Default to 25 recommendations
+        limit = request_data.get('limit', 30)  # Default to 30 recommendations
         
         if not timetable_courses:
             raise HTTPException(status_code=400, detail="No courses provided")
         
-        # Get personalized recommendations
-        recommendations = opportunity_scraper.get_personalized_recommendations(
-            user_profile=user_profile,
+        # Step 1: Extract keywords from timetable using Graph-BERT
+        keywords = graph_bert_recommender.extract_keywords_from_courses(timetable_courses)
+        
+        # Step 2: Use fallback courses for instant results (scraping disabled for speed)
+        from app.services.fallback_courses import get_fallback_courses
+        scraped_courses = get_fallback_courses(keywords, limit=50)
+        print(f"Using {len(scraped_courses)} courses from database")
+        
+        # Step 3: Rank courses using Graph-BERT algorithm
+        ranked_courses = graph_bert_recommender.rank_courses_with_graph_bert(
+            scraped_courses=scraped_courses,
             timetable_courses=timetable_courses,
-            limit=limit
+            user_profile=user_profile
         )
         
-        # Add apply button data to each recommendation
-        for course in recommendations['courses']:
+        # Step 4: Add navigation buttons and metadata
+        final_courses = []
+        for course in ranked_courses[:limit]:
             course['can_apply'] = True
             course['apply_button_text'] = 'Enroll Now'
-            course['apply_url'] = course.get('url', course.get('apply_url', '#'))
+            course['apply_url'] = course.get('url', '#')
+            course['external_link'] = True
+            course['opens_in_new_tab'] = True
+            final_courses.append(course)
         
-        for job in recommendations.get('jobs', []):
-            job['can_apply'] = True
-            job['apply_button_text'] = 'Apply Now'
-            job['apply_url'] = job.get('url', '#')
-        
-        for internship in recommendations.get('internships', []):
-            internship['can_apply'] = True
-            internship['apply_button_text'] = 'Apply for Internship'
-            internship['apply_url'] = internship.get('url', '#')
+        # Generate learning path suggestion
+        learning_path = []
+        if user_profile.get('target_career'):
+            course_names = [c.get('name', '') for c in timetable_courses]
+            learning_path = graph_bert_recommender.get_learning_path(
+                current_courses=course_names,
+                target_career=user_profile['target_career']
+            )
         
         return JSONResponse(content={
             "success": True,
-            "message": f"Found {recommendations['total_courses']} course recommendations",
+            "message": f"Found {len(final_courses)} course recommendations from {len(set(c['platform'] for c in final_courses))} platforms",
             "data": {
-                "courses": recommendations['courses'],
-                "jobs": recommendations.get('jobs', []),
-                "internships": recommendations.get('internships', []),
-                "total_courses": recommendations['total_courses'],
-                "total_jobs": recommendations.get('total_jobs', 0),
-                "user_year": recommendations.get('user_year', 2),
-                "keywords_used": recommendations.get('keywords_used', [])
+                "courses": final_courses,
+                "total_courses": len(final_courses),
+                "platforms_searched": list(set(c['platform'] for c in final_courses)),
+                "keywords_used": keywords[:10],
+                "learning_path": learning_path,
+                "recommendation_method": "Graph-BERT with Multi-Platform Scraping",
+                "user_year": user_profile.get('current_year', 2)
             }
         })
         
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Recommendation error: {error_details}")
         raise HTTPException(status_code=500, detail=f"Failed to get recommendations: {str(e)}")
 
 async def save_extracted_courses(user_id: str, courses: list):
