@@ -313,20 +313,25 @@ async def verify_github_project(url: str) -> Dict[str, Any]:
         # Extract owner and repo from URL
         match = re.search(r'github\.com/([^/]+)/([^/]+)', url)
         if not match:
-            return {"verified": False, "issues": ["Invalid GitHub URL format"]}
+            return {"verified": False, "issues": ["Invalid GitHub URL format"], "confidence_score": 0.0}
         
         owner, repo = match.groups()
+        repo = repo.rstrip('/')  # Remove trailing slash if present
         
         # GitHub API call
         api_url = f"https://api.github.com/repos/{owner}/{repo}"
-        headers = {"Accept": "application/vnd.github.v3+json"}
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "EduCareer-Portfolio-Verifier"
+        }
         
-        # Add GitHub token if available
-        from app.core.config import settings
-        if settings.GITHUB_TOKEN:
-            headers["Authorization"] = f"token {settings.GITHUB_TOKEN}"
+        # Try to get GitHub token from environment
+        import os
+        github_token = os.getenv('GITHUB_TOKEN')
+        if github_token and github_token != 'your-github-token':
+            headers["Authorization"] = f"token {github_token}"
         
-        response = requests.get(api_url, headers=headers, timeout=10)
+        response = requests.get(api_url, headers=headers, timeout=15)
         
         if response.status_code == 200:
             repo_data = response.json()
@@ -375,6 +380,24 @@ async def verify_github_project(url: str) -> Dict[str, Any]:
                 "confidence_score": 0.0
             }
             
+    except requests.exceptions.Timeout:
+        return {
+            "verified": False,
+            "issues": ["Connection timeout - GitHub API took too long to respond"],
+            "confidence_score": 0.0
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            "verified": False,
+            "issues": ["Connection error - Unable to reach GitHub API. Please check your internet connection."],
+            "confidence_score": 0.0
+        }
+    except requests.exceptions.RequestException as e:
+        return {
+            "verified": False,
+            "issues": [f"Network error: {str(e)}"],
+            "confidence_score": 0.0
+        }
     except Exception as e:
         return {
             "verified": False,

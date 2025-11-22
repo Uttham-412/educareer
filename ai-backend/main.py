@@ -50,6 +50,8 @@ app.include_router(
     tags=["Portfolio Verification"]
 )
 
+
+
 @app.get("/")
 async def root():
     return {
@@ -87,3 +89,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True
     )
+
+

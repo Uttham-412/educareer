@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { CourseRecommendations } from "@/components/timetable/CourseRecommendations";
 
 interface ClassSlot {
   id: string;
@@ -1007,76 +1008,15 @@ Web Development`);
         </>
       )}
 
-      {/* Certification Recommendations */}
+      {/* AI-Powered Course Recommendations */}
       {uploadedTimetable && (
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
-              Recommended Certifications
-            </CardTitle>
-            <CardDescription>
-              AI-powered certification suggestions based on your subjects
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {certificationRecommendations.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Award className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No specific recommendations available for your current subjects</p>
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {certificationRecommendations.map((cert) => (
-                  <div
-                    key={cert.id}
-                    className={`rounded-lg p-4 ${getPriorityColor(cert.priority)} hover-lift`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Award className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-medium text-foreground">
-                            {cert.title}
-                          </h4>
-                          <Badge className={getDifficultyBadgeColor(cert.difficulty)} variant="secondary">
-                            {cert.difficulty}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {cert.description}
-                        </p>
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="w-3 h-3" />
-                            <span className="text-muted-foreground">Provider: {cert.provider}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-3 h-3" />
-                            <span className="text-muted-foreground">Duration: {cert.duration}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="w-3 h-3" />
-                            <span className="text-muted-foreground">
-                              Relevant subjects: {cert.relevantSubjects.join(', ')}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mt-3">
-                          <Badge variant="outline" className="text-xs">
-                            {cert.priority} priority
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <CourseRecommendations 
+          timetableCourses={uploadedTimetable.flatMap(day => 
+            day.classes.map(c => ({
+              name: c.subject  // Only send course name
+            }))
+          )}
+        />
       )}
 
       {/* Manual Entry Dialog */}

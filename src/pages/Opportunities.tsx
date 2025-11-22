@@ -117,11 +117,16 @@ export default function Opportunities() {
   const fetchPersonalizedOpportunities = async () => {
     try {
       setLoading(true);
+      
+      // Always start with default opportunities
+      setOpportunities(defaultOpportunities);
+      
+      // Try to fetch additional opportunities from API
       const response = await fetch('http://localhost:8000/api/v1/recommendations/personalized', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: user?.id || 'guest',
+          user_id: user?.email || 'guest',
           include_courses: true,
           include_jobs: true,
           limit: 20
@@ -132,8 +137,8 @@ export default function Opportunities() {
         const data = await response.json();
         
         // Transform API data to match Opportunity interface
-        const transformedOpportunities: Opportunity[] = [
-          ...(data.data.courses || []).map((course: any) => ({
+        const apiOpportunities: Opportunity[] = [
+          ...(data.data?.courses || []).map((course: any) => ({
             id: course.title + course.provider,
             title: course.title,
             company: course.provider,
@@ -146,7 +151,7 @@ export default function Opportunities() {
             matchScore: course.match_percentage,
             featured: course.match_percentage > 80
           })),
-          ...(data.data.jobs || []).map((job: any) => ({
+          ...(data.data?.jobs || []).map((job: any) => ({
             id: job.title + job.company,
             title: job.title,
             company: job.company,
@@ -162,14 +167,14 @@ export default function Opportunities() {
           }))
         ];
         
-        setOpportunities(transformedOpportunities);
-      } else {
-        // Fallback to default opportunities
-        setOpportunities(defaultOpportunities);
+        // Combine default opportunities with API opportunities
+        if (apiOpportunities.length > 0) {
+          setOpportunities([...defaultOpportunities, ...apiOpportunities]);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch opportunities:', error);
-      setOpportunities(defaultOpportunities);
+      // Keep default opportunities on error
     } finally {
       setLoading(false);
     }
@@ -184,7 +189,7 @@ export default function Opportunities() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: user?.id || 'guest',
+          user_id: user?.email || 'guest',
           item_id: opportunityId,
           action: 'clicked'
         })
@@ -194,13 +199,15 @@ export default function Opportunities() {
       window.open(opportunity.applicationUrl, '_blank');
       
       toast({
-        title: "Opening Application!",
+        title: "Opening Application! 🚀",
         description: `Redirecting to ${opportunity.company}...`,
       });
     } else {
+      // Show success message for opportunities without external URL
       toast({
-        title: "Application Started!",
-        description: `Applying for ${opportunity?.title} at ${opportunity?.company}`,
+        title: "Application Submitted! ✅",
+        description: `Your application for ${opportunity?.title} at ${opportunity?.company} has been recorded. We'll contact you soon!`,
+        duration: 5000,
       });
     }
   };

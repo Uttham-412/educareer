@@ -480,3 +480,139 @@ async def save_notification_log(user_id: str, notification_type: str, subject: s
     except Exception as e:
         print(f"Error saving notification log: {str(e)}")
         # Don't raise exception to avoid breaking main flow
+
+
+@router.post("/send-opportunity-alert")
+async def send_opportunity_alert(
+    request: Dict[str, Any],
+    db: Session = Depends(get_db)
+):
+    """
+    Send opportunity alert via Email, SMS, and WhatsApp when new opportunity is posted
+    """
+    
+    try:
+        from app.services.twilio_service import twilio_service
+        from app.services.email_service import email_service
+        
+        # Extract opportunity details
+        user_id = request.get('user_id')
+        user_email = request.get('user_email')
+        user_phone = request.get('user_phone')
+        user_name = request.get('user_name', 'there')
+        
+        opportunity_title = request.get('opportunity_title')
+        company = request.get('company')
+        location = request.get('location')
+        description = request.get('description', '')
+        apply_url = request.get('apply_url')
+        salary = request.get('salary')
+        
+        if not opportunity_title or not company or not apply_url:
+            raise HTTPException(status_code=400, detail="Opportunity title, company, and apply URL are required")
+        
+        results = {}
+        
+        # Send Email
+        if user_email:
+            email_result = email_service.send_opportunity_email(
+                user_email=user_email,
+                user_name=user_name,
+                opportunity_title=opportunity_title,
+                company=company,
+                location=location,
+                description=description,
+                apply_url=apply_url,
+                salary=salary
+            )
+            results['email'] = email_result
+        
+        # Send WhatsApp
+        if user_phone:
+            whatsapp_result = twilio_service.send_opportunity_notification(
+                user_phone=user_phone,
+                opportunity_title=opportunity_title,
+                company=company,
+                location=location,
+                apply_url=apply_url,
+                via_whatsapp=True,
+                via_sms=False
+            )
+            results['whatsapp'] = whatsapp_result.get('whatsapp', {})
+        
+        # Save notification log
+        if user_id:
+            await save_notification_log(
+                user_id, 
+                "opportunity_alert", 
+                f"New Opportunity: {opportunity_title}", 
+                {"success": True, "results": results}
+            )
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "Opportunity alerts sent successfully",
+            "results": results
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Opportunity alert failed: {str(e)}")
+
+@router.post("/test-twilio")
+async def test_twilio_service(request: Dict[str, Any]):
+    """Test Twilio SMS and WhatsApp service"""
+    
+    try:
+        from app.services.twilio_service import twilio_service
+        
+        phone_number = request.get('phone_number')
+        test_type = request.get('type', 'whatsapp')  # 'sms' or 'whatsapp'
+        
+        if not phone_number:
+            raise HTTPException(status_code=400, detail="Phone number is required")
+        
+        test_message = "🎉 Test message from EduCareer! Your notification system is working perfectly. You'll receive job alerts here when new opportunities match your profile."
+        
+        if test_type == 'sms':
+            result = twilio_service.send_sms(phone_number, test_message)
+        else:
+            result = twilio_service.send_whatsapp(phone_number, test_message)
+        
+        return JSONResponse(content={
+            "success": result.get('success', False),
+            "message": result.get('error') if not result.get('success') else "Test message sent successfully!",
+            "details": result
+        })
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Twilio test failed: {str(e)}")
+
+@router.post("/test-email")
+async def test_email_service(request: Dict[str, Any]):
+    """Test Email service"""
+    
+    try:
+        from app.services.email_service import email_service
+        
+        email_address = request.get('email')
+        
+        if not email_address:
+            raise HTTPException(status_code=400, detail="Email address is required")
+        
+        result = email_service.send_email(
+            to_email=email_address,
+            subject="🎉 Test Email from EduCareer",
+            body="<h1>Success!</h1><p>Your email notification system is working perfectly. You'll receive job alerts here when new opportunities match your profile.</p>",
+            html=True
+        )
+        
+        return JSONResponse(content={
+            "success": result.get('success', False),
+            "message": result.get('error') if not result.get('success') else "Test email sent successfully!",
+            "details": result
+        })
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Email test failed: {str(e)}")

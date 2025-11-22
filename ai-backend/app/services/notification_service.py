@@ -1,12 +1,19 @@
 from app.core.config import settings
 import smtplib
-from twilio.rest import Client
 from email.mime.text import MIMEText
 from email.utils import formataddr
 from typing import Dict, Any
 
-# Initialize Twilio client using settings
-client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+# Initialize Twilio client only if credentials are provided
+try:
+    from twilio.rest import Client
+    if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    else:
+        client = None
+except Exception as e:
+    print(f"Twilio not configured: {e}")
+    client = None
 
 class NotificationService:
     """Service class for sending notifications"""
