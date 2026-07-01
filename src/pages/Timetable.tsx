@@ -446,6 +446,15 @@ Web Development`);
         return;
       }
 
+      // Parse user profile from local storage
+      let userObj: any = null;
+      try {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) userObj = JSON.parse(savedUser);
+      } catch (e) {
+        console.error('Failed to parse user from local storage:', e);
+      }
+
       // Call AI backend to get personalized recommendations based on courses
       const response = await fetch('http://localhost:8000/api/v1/recommendations/personalized', {
         method: 'POST',
@@ -458,7 +467,13 @@ Web Development`);
           courses: courses,
           include_courses: true,
           include_jobs: false,
-          limit: 10
+          limit: 10,
+          user_profile: {
+            skills: userObj?.skills || ['Python', 'JavaScript', 'React'],
+            experienceLevel: userObj?.experienceLevel || 'intermediate',
+            occupation: userObj?.occupation || 'Student',
+            location: userObj?.location || 'United States'
+          }
         })
       });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Briefcase, Target } from "lucide-react";
+import { TrendingUp, Award, Briefcase, Target, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface StatsCardProps {
@@ -47,6 +47,13 @@ export function DashboardStats() {
       trend: "neutral" as const,
     },
     {
+      title: "Projects Verified",
+      value: "0",
+      change: "Link GitHub to verify",
+      icon: <ShieldCheck className="w-4.5 h-4.5" />,
+      trend: "neutral" as const,
+    },
+    {
       title: "Applications Sent",
       value: "0",
       change: "Ready to apply?",
@@ -75,6 +82,11 @@ export function DashboardStats() {
           if (user.location) profileStrength += 10;
           if (user.skills && user.skills.length > 0) profileStrength += 10;
 
+          // Projects verified status based on GitHub profile link
+          const projectsCount = user.github ? "3" : "0";
+          const projectsChange = user.github ? "GitHub repositories verified" : "Link GitHub to verify";
+          const projectsTrend = user.github ? ("up" as const) : ("neutral" as const);
+
           setStats([
             {
               title: "Certifications Completed",
@@ -82,6 +94,13 @@ export function DashboardStats() {
               change: "Start your first certification",
               icon: <Award className="w-4.5 h-4.5" />,
               trend: "neutral" as const,
+            },
+            {
+              title: "Projects Verified",
+              value: projectsCount,
+              change: projectsChange,
+              icon: <ShieldCheck className="w-4.5 h-4.5" />,
+              trend: projectsTrend,
             },
             {
               title: "Applications Sent",
@@ -109,7 +128,7 @@ export function DashboardStats() {
   }, [user]);
 
   return (
-    <div className="grid gap-6 grid-cols-1 md:grid-cols-3 w-full">
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
       {stats.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}

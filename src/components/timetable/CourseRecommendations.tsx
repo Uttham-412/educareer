@@ -54,10 +54,10 @@ export function CourseRecommendations({ timetableCourses }: CourseRecommendation
       setLoading(true);
       
       const userProfile = {
-        current_year: 2, // Default to 2nd year
+        current_year: user?.currentYear || user?.current_year || 2,
         interests: user?.skills || [],
-        target_career: user?.role || '',
-        experience_level: 'intermediate'
+        target_career: user?.occupation || '',
+        experience_level: user?.experienceLevel || 'intermediate'
       };
 
       // Extract only course names for recommendations

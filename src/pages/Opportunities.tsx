@@ -129,7 +129,14 @@ export default function Opportunities() {
           user_id: user?.email || 'guest',
           include_courses: true,
           include_jobs: true,
-          limit: 20
+          limit: 20,
+          user_profile: {
+            skills: user?.skills || ['Python', 'JavaScript', 'React'],
+            experienceLevel: user?.experienceLevel || 'intermediate',
+            occupation: user?.occupation || 'Student',
+            location: user?.location || 'United States'
+          },
+          courses: user?.courses?.map((c: any) => c.name) || ['Data Structures', 'Web Development', 'Machine Learning']
         })
       });
       

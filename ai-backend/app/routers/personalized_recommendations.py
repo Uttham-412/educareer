@@ -12,6 +12,8 @@ class RecommendationRequest(BaseModel):
     include_courses: bool = True
     include_jobs: bool = True
     limit: int = 10
+    user_profile: Dict[str, Any] = None
+    courses: List[str] = None
 
 @router.post("/personalized")
 async def get_personalized_recommendations(request: RecommendationRequest):
@@ -23,16 +25,16 @@ async def get_personalized_recommendations(request: RecommendationRequest):
     """
     
     try:
-        # For now, use default profile (can be enhanced with MongoDB later)
-        user_profile = {
+        # Consume provided profile or fall back to default
+        user_profile = request.user_profile or {
             'skills': ['Python', 'JavaScript', 'React'],
             'experienceLevel': 'intermediate',
             'occupation': 'Student',
             'location': 'United States'
         }
         
-        # Default timetable courses
-        timetable_courses = ['Data Structures', 'Web Development', 'Machine Learning']
+        # Consume provided courses or fall back to default
+        timetable_courses = request.courses or ['Data Structures', 'Web Development', 'Machine Learning']
         
         # Get personalized recommendations
         recommendations = opportunity_scraper.get_personalized_recommendations(
