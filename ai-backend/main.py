@@ -79,9 +79,9 @@ async def test_endpoint():
     }
 
 if __name__ == "__main__":
-    print("🚀 Starting EduCareer AI Backend...")
-    print("📚 API Documentation: http://localhost:8000/docs")
-    print("🔗 Health Check: http://localhost:8000/health")
+    print("Starting EduCareer AI Backend...")
+    print("API Documentation: http://localhost:8000/docs")
+    print("Health Check: http://localhost:8000/health")
     
     uvicorn.run(
         "main:app",

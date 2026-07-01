@@ -6,34 +6,37 @@ import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Soft background glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.04),transparent_50%)] pointer-events-none" />
+      
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-24 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
-          <Badge variant="secondary" className="mb-4">
-            🚀 AI-Powered Career Platform
+          <Badge variant="secondary" className="mb-6 px-3 py-1 bg-secondary text-primary font-medium hover:bg-secondary">
+            AI-Powered Career Platform
           </Badge>
           
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
             Transform Your Career with{" "}
-            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
               AI Intelligence
             </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
             Discover opportunities, build stunning resumes, and plan your career journey 
             with our comprehensive AI-powered platform designed for ambitious professionals.
           </p>
           
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8" asChild>
+            <Button size="lg" className="text-base px-8 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200" asChild>
               <Link to="/auth">
                 Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8">
+            <Button variant="outline" size="lg" className="text-base px-8 border-border hover:bg-secondary transition-all duration-200">
               Watch Demo
             </Button>
           </div>
@@ -41,60 +44,60 @@ const Index = () => {
       </div>
 
       {/* Features Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+      <div className="container mx-auto px-4 py-20 relative z-10 border-t border-border/60">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-foreground tracking-tight mb-4">
             Everything You Need to Succeed
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-muted-foreground text-lg">
             Powerful tools to accelerate your career growth
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <BarChart3 className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <CardTitle>Smart Dashboard</CardTitle>
+          <Card className="border border-border/80 bg-card hover:shadow-md transition-all duration-200">
+            <CardHeader className="pt-8">
+              <BarChart3 className="h-10 w-10 text-primary mb-4" />
+              <CardTitle className="text-xl">Smart Dashboard</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Track your career progress with AI-powered insights and analytics
               </CardDescription>
             </CardContent>
           </Card>
           
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <CardTitle>AI Resume Builder</CardTitle>
+          <Card className="border border-border/80 bg-card hover:shadow-md transition-all duration-200">
+            <CardHeader className="pt-8">
+              <Users className="h-10 w-10 text-primary mb-4" />
+              <CardTitle className="text-xl">AI Resume Builder</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Create professional resumes with AI suggestions and industry templates
               </CardDescription>
             </CardContent>
           </Card>
           
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <Target className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <CardTitle>Opportunity Finder</CardTitle>
+          <Card className="border border-border/80 bg-card hover:shadow-md transition-all duration-200">
+            <CardHeader className="pt-8">
+              <Target className="h-10 w-10 text-primary mb-4" />
+              <CardTitle className="text-xl">Opportunity Finder</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Discover relevant job opportunities tailored to your skills and goals
               </CardDescription>
             </CardContent>
           </Card>
           
-          <Card className="text-center hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <TrendingUp className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-              <CardTitle>Career Roadmap</CardTitle>
+          <Card className="border border-border/80 bg-card hover:shadow-md transition-all duration-200">
+            <CardHeader className="pt-8">
+              <TrendingUp className="h-10 w-10 text-primary mb-4" />
+              <CardTitle className="text-xl">Career Roadmap</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 Get personalized career paths and skill development recommendations
               </CardDescription>
             </CardContent>
@@ -103,18 +106,18 @@ const Index = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+      <div className="bg-gradient-to-r from-primary to-indigo-900 text-primary-foreground py-20 border-t border-border">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
             Ready to Accelerate Your Career?
           </h2>
-          <p className="text-xl mb-8 opacity-90">
+          <p className="text-lg mb-10 opacity-80 max-w-xl mx-auto">
             Join thousands of professionals who are already using our platform
           </p>
-          <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
+          <Button size="lg" className="bg-white text-primary hover:bg-white/95 text-base px-10 transition-all duration-200" asChild>
             <Link to="/auth">
               Start Your Journey Today
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

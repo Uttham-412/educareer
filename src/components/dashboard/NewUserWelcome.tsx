@@ -35,31 +35,31 @@ export function NewUserWelcome({ userName, profileStrength }: NewUserWelcomeProp
       title: "Get AI Recommendations",
       description: "Receive personalized career guidance",
       completed: false,
-      action: () => navigate('/test-backend'),
+      action: () => navigate('/timetable'),
     },
   ];
 
   return (
     <div className="space-y-6">
       {/* Welcome Message */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+      <Card className="bg-gradient-soft border border-border">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Welcome to your AI Career Platform, {userName}! 🎉
+              <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">
+                Welcome to your Career Platform, {userName}
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 You're just getting started on your career journey. Let's set up your profile to unlock personalized recommendations and opportunities.
               </p>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                <Badge variant="secondary" className="bg-secondary text-secondary-foreground border border-border">
                   Profile {profileStrength}% Complete
                 </Badge>
-                <Badge variant="outline" className="text-purple-600 border-purple-200">
+                <Badge variant="outline" className="text-primary border-primary/20">
                   New User
                 </Badge>
               </div>
@@ -69,10 +69,10 @@ export function NewUserWelcome({ userName, profileStrength }: NewUserWelcomeProp
       </Card>
 
       {/* Getting Started Steps */}
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CheckCircle className="w-5 h-5 text-success" />
             Getting Started
           </CardTitle>
         </CardHeader>
@@ -83,22 +83,22 @@ export function NewUserWelcome({ userName, profileStrength }: NewUserWelcomeProp
                 key={index}
                 className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
                   step.completed 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                    ? 'bg-secondary/40 border-success/30' 
+                    : 'bg-card border-border hover:bg-secondary/50'
                 }`}
               >
                 <div className="flex-shrink-0">
                   {step.completed ? (
-                    <CheckCircle className="w-6 h-6 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-success" />
                   ) : (
-                    <Circle className="w-6 h-6 text-gray-400" />
+                    <Circle className="w-5 h-5 text-muted-foreground" />
                   )}
                 </div>
                 <div className="flex-1">
-                  <h4 className={`font-medium ${step.completed ? 'text-green-800' : 'text-gray-900'}`}>
+                  <h4 className={`font-semibold ${step.completed ? 'text-success' : 'text-foreground'}`}>
                     {step.title}
                   </h4>
-                  <p className={`text-sm ${step.completed ? 'text-green-600' : 'text-gray-600'}`}>
+                  <p className={`text-sm ${step.completed ? 'text-success/80' : 'text-muted-foreground'}`}>
                     {step.description}
                   </p>
                 </div>
@@ -118,33 +118,33 @@ export function NewUserWelcome({ userName, profileStrength }: NewUserWelcomeProp
       </Card>
 
       {/* Quick Tips */}
-      <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+      <Card className="border border-border bg-gradient-soft">
         <CardHeader>
-          <CardTitle className="text-amber-800">💡 Quick Tips for Success</CardTitle>
+          <CardTitle className="text-lg text-foreground font-semibold">Quick Tips for Success</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
-              <p className="text-sm font-medium text-amber-800">🎯 Set Clear Goals</p>
-              <p className="text-xs text-amber-700 mt-1">
+            <div className="bg-card rounded-lg p-4 border border-border">
+              <p className="text-sm font-semibold text-foreground">Set Clear Goals</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Define your career objectives to get better AI recommendations
               </p>
             </div>
-            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
-              <p className="text-sm font-medium text-amber-800">📚 Keep Learning</p>
-              <p className="text-xs text-amber-700 mt-1">
+            <div className="bg-card rounded-lg p-4 border border-border">
+              <p className="text-sm font-semibold text-foreground">Keep Learning</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Add new skills and certifications to boost your profile
               </p>
             </div>
-            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
-              <p className="text-sm font-medium text-amber-800">🔄 Stay Active</p>
-              <p className="text-xs text-amber-700 mt-1">
+            <div className="bg-card rounded-lg p-4 border border-border">
+              <p className="text-sm font-semibold text-foreground">Stay Active</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Regular activity helps our AI provide better matches
               </p>
             </div>
-            <div className="bg-white/60 rounded-lg p-3 border border-amber-200">
-              <p className="text-sm font-medium text-amber-800">🤝 Network</p>
-              <p className="text-xs text-amber-700 mt-1">
+            <div className="bg-card rounded-lg p-4 border border-border">
+              <p className="text-sm font-semibold text-foreground">Network</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Connect with professionals in your field of interest
               </p>
             </div>

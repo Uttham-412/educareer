@@ -16,19 +16,19 @@ function StatsCard({ title, value, change, icon, trend }: StatsCardProps) {
   const trendColor = trend === "up" ? "text-success" : trend === "down" ? "text-destructive" : "text-muted-foreground";
   
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md border border-border shadow-sm transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-semibold text-muted-foreground">
           {title}
         </CardTitle>
-        <div className="text-primary">
+        <div className="text-primary bg-secondary/80 p-2 rounded-lg">
           {icon}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        <div className={`text-xs ${trendColor} flex items-center gap-1`}>
-          {trend === "up" && <TrendingUp className="w-3 h-3" />}
+        <div className="text-3xl font-extrabold text-foreground tracking-tight">{value}</div>
+        <div className={`text-xs ${trendColor} flex items-center gap-1 mt-1`}>
+          {trend === "up" && <TrendingUp className="w-3.5 h-3.5" />}
           {change}
         </div>
       </CardContent>
@@ -43,21 +43,21 @@ export function DashboardStats() {
       title: "Certifications Completed",
       value: "0",
       change: "Start your first certification",
-      icon: <Award className="w-4 h-4" />,
+      icon: <Award className="w-4.5 h-4.5" />,
       trend: "neutral" as const,
     },
     {
       title: "Applications Sent",
       value: "0",
       change: "Ready to apply?",
-      icon: <Briefcase className="w-4 h-4" />,
+      icon: <Briefcase className="w-4.5 h-4.5" />,
       trend: "neutral" as const,
     },
     {
       title: "Profile Strength",
       value: "25%",
       change: "Complete your profile",
-      icon: <Target className="w-4 h-4" />,
+      icon: <Target className="w-4.5 h-4.5" />,
       trend: "neutral" as const,
     },
   ]);
@@ -80,21 +80,21 @@ export function DashboardStats() {
               title: "Certifications Completed",
               value: "0",
               change: "Start your first certification",
-              icon: <Award className="w-4 h-4" />,
+              icon: <Award className="w-4.5 h-4.5" />,
               trend: "neutral" as const,
             },
             {
               title: "Applications Sent",
               value: "0",
               change: "Ready to apply?",
-              icon: <Briefcase className="w-4 h-4" />,
+              icon: <Briefcase className="w-4.5 h-4.5" />,
               trend: "neutral" as const,
             },
             {
               title: "Profile Strength",
               value: `${profileStrength}%`,
               change: profileStrength < 100 ? "Complete your profile" : "Profile complete!",
-              icon: <Target className="w-4 h-4" />,
+              icon: <Target className="w-4.5 h-4.5" />,
               trend: profileStrength >= 80 ? "up" as const : "neutral" as const,
             },
           ]);
@@ -109,7 +109,7 @@ export function DashboardStats() {
   }, [user]);
 
   return (
-    <div className="grid grid-cols-3 w-full">
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-3 w-full">
       {stats.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}

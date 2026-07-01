@@ -24,7 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* Quick Actions */}
             <div className="flex items-center gap-2">
               <div className="text-sm text-muted-foreground">
-                Welcome back! 👋
+                Welcome back!
               </div>
             </div>
           </header>

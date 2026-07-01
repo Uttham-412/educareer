@@ -95,6 +95,26 @@ export default function Resume() {
   const [userProfile, setUserProfile] = useState<UserProfile>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Custom dynamic scaling state for preview section
+  const [previewScale, setPreviewScale] = useState(1);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!previewContainerRef.current) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width } = entry.contentRect;
+        // A4 page width is 210mm. At standard web resolution, this translates to approx 794px.
+        // We calculate scale to fit the parent container minus a small padding offset.
+        const targetWidth = 794;
+        const newScale = (width - 24) / targetWidth;
+        setPreviewScale(Math.min(newScale, 1));
+      }
+    });
+    resizeObserver.observe(previewContainerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+  
   const [skills, setSkills] = useState<Skill[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
@@ -368,6 +388,12 @@ export default function Resume() {
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
 
+      // Temporarily remove transform for accurate canvas capture
+      const originalTransform = resumeElement.style.transform;
+      const originalTransformOrigin = resumeElement.style.transformOrigin;
+      resumeElement.style.transform = 'none';
+      resumeElement.style.transformOrigin = 'initial';
+
       // Capture the resume as canvas with higher quality
       const canvas = await html2canvas(resumeElement, {
         scale: 3, // Higher scale for better quality
@@ -377,6 +403,10 @@ export default function Resume() {
         windowWidth: 1200,
         windowHeight: 1697, // A4 ratio
       });
+
+      // Restore original styling
+      resumeElement.style.transform = originalTransform;
+      resumeElement.style.transformOrigin = originalTransformOrigin;
 
       // Convert canvas to PDF
       const imgData = canvas.toDataURL('image/png', 1.0);
@@ -781,7 +811,7 @@ export default function Resume() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <Button onClick={generateResume} variant="outline" className="gap-2">
             <Zap className="w-4 h-4" />
             Choose Template
@@ -1359,19 +1389,35 @@ export default function Resume() {
 
         {/* Preview Section */}
         <div className="lg:sticky lg:top-6">
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
+          <Card className="h-fit border border-border shadow-md">
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+                <FileText className="w-5 h-5 text-primary" />
                 Resume Preview
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div id="resume-preview">
-                {renderSelectedTemplate()}
+            <CardContent className="pt-6">
+              <div 
+                ref={previewContainerRef}
+                className="w-full bg-secondary/30 border border-border rounded-xl flex justify-center items-start overflow-hidden relative"
+                style={{ height: `${1123 * previewScale + 12}px`, transition: 'height 0.15s ease' }}
+              >
+                <div 
+                  id="resume-preview" 
+                  className="shadow-xl border border-border bg-white text-black shrink-0" 
+                  style={{ 
+                    width: "210mm", 
+                    minHeight: "297mm",
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: 'top center',
+                    transition: 'transform 0.15s ease'
+                  }}
+                >
+                  {renderSelectedTemplate()}
+                </div>
               </div>
 
-              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+              <div className="mt-4 p-3 bg-secondary/50 border rounded-lg">
                 <p className="text-xs text-muted-foreground text-center">
                   Resume automatically updates as you make changes
                 </p>

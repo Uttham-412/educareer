@@ -54,7 +54,7 @@ export default function Timetable() {
   useEffect(() => {
     const loadSavedTimetable = async () => {
       try {
-        console.log('🔄 Loading saved timetable...');
+        console.log('Loading saved timetable...');
         const token = localStorage.getItem('auth_token');
         console.log('Token found for loading:', !!token);
         
@@ -77,7 +77,7 @@ export default function Timetable() {
           console.log('Loaded data from backend:', data);
           
           if (data.timetable && Array.isArray(data.timetable) && data.timetable.length > 0) {
-            console.log('✅ Timetable found, setting state');
+            console.log('Timetable found, setting state');
             setUploadedTimetable(data.timetable);
             setUploadStatus('success');
           } else {
@@ -87,7 +87,7 @@ export default function Timetable() {
           console.error('Failed to load timetable:', response.status);
         }
       } catch (error) {
-        console.error('❌ Error loading saved timetable:', error);
+        console.error('Error loading saved timetable:', error);
       } finally {
         setIsLoading(false);
       }
@@ -239,7 +239,7 @@ export default function Timetable() {
     await saveTimetableToDatabase(schedule);
     
     toast({
-      title: "Timetable Uploaded! 🎉",
+      title: "Timetable Uploaded",
       description: `Successfully imported ${schedule.flatMap(d => d.classes).length} subjects from your CSV file.`,
     });
   };
@@ -249,13 +249,13 @@ export default function Timetable() {
     // Excel parsing requires additional library (xlsx)
     throw new Error(`Excel file detected! Please convert to CSV first:
 
-📝 Quick Steps:
+Quick Steps:
 1. Open your Excel file
 2. Click "File" → "Save As"
 3. Choose "CSV (Comma delimited) (*.csv)"
 4. Save and upload the CSV file
 
-💡 Tip: Only the "Subject" column is required. Other columns (Day, Time, Professor, Room) are optional!
+Tip: Only the "Subject" column is required. Other columns (Day, Time, Professor, Room) are optional!
 
 Example CSV format:
 Subject
@@ -364,14 +364,14 @@ Web Development`);
 
   const saveTimetableToDatabase = async (schedule: DaySchedule[]) => {
     try {
-      console.log('🔄 Attempting to save timetable to database...');
+      console.log('Attempting to save timetable to database...');
       console.log('Schedule data:', schedule);
       
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       console.log('Token found:', !!token);
       
       if (!token) {
-        console.error('❌ No authentication token found');
+        console.error('No authentication token found');
         toast({
           title: "Authentication Required",
           description: "Please log in to save your timetable.",
@@ -408,10 +408,10 @@ Web Development`);
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Timetable saved successfully to database:', data);
+        console.log('Timetable saved successfully to database:', data);
         
         toast({
-          title: "Timetable Saved! ✅",
+          title: "Timetable Saved",
           description: "Your timetable has been saved and we're finding relevant courses for you.",
         });
         
@@ -419,7 +419,7 @@ Web Development`);
         await fetchCourseRecommendations(courses);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Failed to save timetable:', response.status, errorData);
+        console.error('Failed to save timetable:', response.status, errorData);
         toast({
           title: "Save Failed",
           description: errorData.error || "Failed to save your timetable. Please try again.",
@@ -427,7 +427,7 @@ Web Development`);
         });
       }
     } catch (error) {
-      console.error('❌ Exception while saving timetable:', error);
+      console.error('Exception while saving timetable:', error);
       toast({
         title: "Save Error",
         description: "An error occurred while saving. Please try again.",
@@ -847,33 +847,33 @@ Web Development`);
                     Supported formats: CSV, Excel (.xlsx, .xls), PDF, Images (JPG, PNG)
                   </p>
                   <p className="text-xs text-primary font-medium">
-                    ✨ AI-Powered: PDF and Image files use OCR + NLP for automatic course extraction!
+                    AI-Powered: PDF and Image files use OCR + NLP for automatic course extraction!
                   </p>
                   
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
-                    <p className="text-xs font-semibold text-blue-900 mb-2">📝 Simple CSV Format (Only Subject Required!):</p>
-                    <code className="bg-white px-2 py-1 rounded text-xs block mb-2 text-blue-800">
+                  <div className="bg-secondary/40 border border-border rounded-lg p-3 text-left">
+                    <p className="text-xs font-semibold text-foreground mb-2">Simple CSV Format (Only Subject Required!):</p>
+                    <code className="bg-card px-2 py-1 rounded text-xs block mb-2 text-foreground">
                       Subject<br/>
                       Data Structures<br/>
                       Machine Learning<br/>
                       Web Development
                     </code>
-                    <p className="text-xs text-blue-700 mb-2">
-                      💡 Optional columns: Day, Time, Professor, Room, Duration, Type
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Optional columns: Day, Time, Professor, Room, Duration, Type
                     </p>
                     <div className="flex gap-2">
                       <a 
                         href="/sample-timetable-simple.csv" 
                         download="sample-timetable-simple.csv"
-                        className="text-xs text-blue-600 hover:text-blue-800 underline font-medium"
+                        className="text-xs text-primary hover:underline font-medium"
                       >
-                        📥 Download Simple Template
+                        Download Simple Template
                       </a>
-                      <span className="text-xs text-blue-400">|</span>
+                      <span className="text-xs text-muted-foreground/30">|</span>
                       <a 
                         href="/sample-timetable.csv" 
                         download="sample-timetable.csv"
-                        className="text-xs text-blue-600 hover:text-blue-800 underline"
+                        className="text-xs text-primary hover:underline"
                       >
                         Download Full Template
                       </a>
@@ -909,7 +909,7 @@ Web Development`);
         {/* Timetable Display */}
         <Card className="glass-card">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-primary" />
@@ -919,7 +919,7 @@ Web Development`);
                   Analyzed timetable with certification recommendations
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
@@ -986,9 +986,9 @@ Web Development`);
                           </div>
                           
                           <div className="space-y-1 text-xs text-muted-foreground">
-                            <p>👨‍🏫 {classItem.professor}</p>
-                            <p>📍 {classItem.room}</p>
-                            <p>🕐 {classItem.time} ({classItem.duration}min)</p>
+                            <p className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-muted-foreground/80" /> {classItem.professor}</p>
+                            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-muted-foreground/80" /> {classItem.room}</p>
+                            <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-muted-foreground/80" /> {classItem.time} ({classItem.duration}min)</p>
                           </div>
                           
                           <div className="mt-2">

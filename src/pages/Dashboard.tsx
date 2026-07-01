@@ -218,7 +218,7 @@ export default function Dashboard() {
     
     if (opportunity) {
       toast({
-        title: "Application Started! ✅",
+        title: "Application Started",
         description: `Applying for ${opportunity.title} at ${opportunity.company}`,
       });
       
@@ -267,7 +267,7 @@ export default function Dashboard() {
       if (response.ok) {
         const result = await response.json();
         toast({
-          title: "Verification Complete! ✅",
+          title: "Verification Complete",
           description: result.message || "Your GitHub project has been verified successfully",
         });
         setGithubDialogOpen(false);
@@ -332,7 +332,7 @@ export default function Dashboard() {
       if (response.ok) {
         const result = await response.json();
         toast({
-          title: "Verification Complete! ✅",
+          title: "Verification Complete",
           description: result.message || "Your certification has been verified successfully",
         });
         setCertDialogOpen(false);
@@ -365,7 +365,7 @@ export default function Dashboard() {
     if (currentYear >= 4) {
       return {
         title: "Final Year Focus",
-        subtitle: "Time to land your dream job! 🎯",
+        subtitle: "Time to land your dream job",
         description: "AI-matched job opportunities and internships based on your profile",
         recommendations: opportunities.filter(op => op.type === "job" || op.type === "internship"),
       };
@@ -373,7 +373,7 @@ export default function Dashboard() {
       // 1st, 2nd, 3rd year students focus on learning and certifications
       return {
         title: "Learning & Building Phase",
-        subtitle: "Focus on skills and certifications 📚",
+        subtitle: "Focus on skills and certifications",
         description: "Build a strong foundation for your career with courses and certifications",
         recommendations: opportunities.filter(op => op.type === "certification"),
       };
@@ -399,21 +399,21 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Hero Header Section */}
-      <div className="hero-gradient rounded-3xl p-8 text-white relative overflow-hidden">
+      <div className="hero-gradient rounded-2xl p-8 relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold animate-slide-up">
-                Welcome {userName}! 👋
+              <h1 className="text-4xl font-bold tracking-tight text-white animate-slide-up">
+                Welcome {userName}!
               </h1>
-              <p className="text-white/80 text-lg">
+              <p className="text-slate-300 text-lg">
                 {isNewUser 
                   ? "Let's start building your career journey together" 
                   : "Let's accelerate your career journey today"
                 }
               </p>
               <div className="flex items-center gap-2 mt-4">
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                <Badge variant="secondary" className="bg-white/10 text-slate-200 border-white/10 hover:bg-white/15">
                   {yearContent.subtitle}
                 </Badge>
               </div>
@@ -421,7 +421,7 @@ export default function Dashboard() {
 
             <div className="flex flex-col items-start gap-4">
               {userProfile?.currentYear && (
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-base">
+                <Badge variant="secondary" className="bg-white/10 text-slate-100 border-white/10 px-4 py-2 text-base font-medium">
                   {userProfile.currentYear === 1 ? '1st Year' :
                    userProfile.currentYear === 2 ? '2nd Year' :
                    userProfile.currentYear === 3 ? '3rd Year' :
@@ -435,9 +435,9 @@ export default function Dashboard() {
                 <Dialog open={githubDialogOpen} onOpenChange={setGithubDialogOpen}>
                   <DialogTrigger asChild>
                     <Button 
-                      variant="secondary" 
+                      variant="default" 
                       size="sm" 
-                      className="bg-purple-600/90 hover:bg-purple-700 text-white border-0"
+                      className="bg-primary hover:bg-primary/95 text-primary-foreground"
                     >
                       <Github className="w-4 h-4 mr-2" />
                       Upload GitHub Project
@@ -491,7 +491,7 @@ export default function Dashboard() {
                         Cancel
                       </Button>
                       <Button
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        className="flex-1 bg-primary hover:bg-primary/95 text-primary-foreground"
                         onClick={handleGithubVerification}
                         disabled={verifying}
                       >
@@ -515,9 +515,9 @@ export default function Dashboard() {
                 <Dialog open={certDialogOpen} onOpenChange={setCertDialogOpen}>
                   <DialogTrigger asChild>
                     <Button 
-                      variant="secondary" 
+                      variant="outline" 
                       size="sm" 
-                      className="bg-blue-600/90 hover:bg-blue-700 text-white border-0"
+                      className="border-border hover:bg-secondary text-foreground"
                     >
                       <Award className="w-4 h-4 mr-2" />
                       Upload Certification
@@ -583,7 +583,7 @@ export default function Dashboard() {
                         Cancel
                       </Button>
                       <Button
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                        className="flex-1 bg-primary hover:bg-primary/95 text-primary-foreground"
                         onClick={handleCertificationVerification}
                         disabled={certifyingVerifying}
                       >
@@ -604,9 +604,9 @@ export default function Dashboard() {
                 </Dialog>
 
                 <Button 
-                  variant="secondary" 
+                  variant="outline" 
                   size="sm" 
-                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                   onClick={() => window.location.href = '/student'}
                 >
                   View Profile
@@ -639,7 +639,7 @@ export default function Dashboard() {
           
           {/* Career Roadmap */}
           <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
-            <CareerRoadmap />
+            <CareerRoadmap currentYear={userProfile?.currentYear || userProfile?.current_year || 4} />
           </div>
 
           {/* Quick Actions Card */}
@@ -672,13 +672,13 @@ export default function Dashboard() {
                 className="w-full justify-start gap-3 hover-glow"
                 onClick={() => window.location.href = '/resume'}
               >
-                📄 Download Resume
+                Download Resume
               </Button>
               <Button 
-                className="w-full gap-2 bg-gradient-primary"
+                className="w-full gap-2 bg-primary hover:bg-primary/95 text-primary-foreground"
                 onClick={() => window.location.href = '/opportunities'}
               >
-                🚀 Explore New Opportunities
+                Explore New Opportunities
               </Button>
             </CardContent>
           </Card>
@@ -726,37 +726,37 @@ export default function Dashboard() {
           <Card className="bg-gradient-soft border-primary/20 hover-lift animate-slide-up" style={{ animationDelay: "0.5s" }}>
             <CardContent className="pt-6">
               <div className="flex items-start gap-6">
-                <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center animate-float">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground mb-2 text-lg">
-                    🤖 AI Career Insights
+                    AI Career Insights
                   </h3>
                   <p className="text-muted-foreground mb-4">
                     Based on your profile and current market trends, here are personalized recommendations:
                   </p>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <div className="bg-white/50 rounded-lg p-3 border border-primary/10">
-                      <p className="text-sm font-medium text-foreground">📈 Skill Boost</p>
+                    <div className="bg-secondary/30 rounded-lg p-3 border border-border">
+                      <p className="text-sm font-medium text-foreground">Skill Boost</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Add <strong>TypeScript</strong> certification to boost profile by 25%
                       </p>
                     </div>
-                    <div className="bg-white/50 rounded-lg p-3 border border-primary/10">
-                      <p className="text-sm font-medium text-foreground">🎯 Market Trend</p>
+                    <div className="bg-secondary/30 rounded-lg p-3 border border-border">
+                      <p className="text-sm font-medium text-foreground">Market Trend</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         High demand for <strong>React developers</strong> in your area
                       </p>
                     </div>
-                    <div className="bg-white/50 rounded-lg p-3 border border-primary/10">
-                      <p className="text-sm font-medium text-foreground">📊 Progress</p>
+                    <div className="bg-secondary/30 rounded-lg p-3 border border-border">
+                      <p className="text-sm font-medium text-foreground">Progress</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Resume score improved by <strong>15%</strong> this month!
                       </p>
                     </div>
-                    <div className="bg-white/50 rounded-lg p-3 border border-primary/10">
-                      <p className="text-sm font-medium text-foreground">💡 Next Step</p>
+                    <div className="bg-secondary/30 rounded-lg p-3 border border-border">
+                      <p className="text-sm font-medium text-foreground">Next Step</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Complete 2 more projects to reach <strong>Expert</strong> level
                       </p>

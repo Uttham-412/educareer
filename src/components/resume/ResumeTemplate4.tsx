@@ -70,7 +70,7 @@ export default function ResumeTemplate4({
             <div className="flex-1">
               <div className="inline-block mb-3">
                 <span className="px-4 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 rounded-full text-sm font-bold">
-                  ✨ CREATIVE PROFESSIONAL
+                  CREATIVE PROFESSIONAL
                 </span>
               </div>
               

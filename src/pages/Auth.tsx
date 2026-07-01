@@ -106,7 +106,7 @@ const Auth = () => {
       }
 
       toast({
-        title: "Welcome to EduCareer AI! 🎉",
+        title: "Welcome to CareerPath!",
         description: "Your account has been created successfully",
       });
     } catch (error: any) {
@@ -128,7 +128,7 @@ const Auth = () => {
       await login(email, password);
 
       toast({
-        title: "Welcome back! 👋",
+        title: "Welcome back!",
         description: "You have been signed in successfully",
       });
     } catch (error: any) {
@@ -143,92 +143,88 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      {/* Background Decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-400/10 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Subtle Background Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.04),transparent_50%)] pointer-events-none" />
 
       <div className="w-full max-w-6xl relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           
           {/* Left Side - Branding */}
-          <div className="hidden lg:block space-y-6 animate-slide-up">
+          <div className="hidden lg:block space-y-8 animate-slide-up">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                  <GraduationCap className="w-7 h-7 text-white" />
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  EduCareer AI
+                <h1 className="text-2xl font-black text-primary">
+                  CareerPath
                 </h1>
               </div>
               
-              <h2 className="text-4xl font-bold text-gray-900 leading-tight">
-                Your AI-Powered Career Journey Starts Here
+              <h2 className="text-4xl font-extrabold text-foreground tracking-tight leading-tight">
+                Your Career Journey Starts Here
               </h2>
               
-              <p className="text-lg text-gray-600">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 Bridge the gap between education and career with personalized recommendations, 
                 smart timetable management, and AI-driven insights.
               </p>
             </div>
 
-            <div className="space-y-4 pt-6">
-              <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
+            <div className="space-y-4 pt-4">
+              <div className="flex items-start gap-4 p-4 bg-card/60 backdrop-blur-sm rounded-xl border border-border">
+                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">AI-Powered Recommendations</h3>
-                  <p className="text-sm text-gray-600">Get personalized course and job suggestions based on your profile</p>
+                  <h3 className="font-semibold text-foreground">Personalized Recommendations</h3>
+                  <p className="text-sm text-muted-foreground">Get personalized course and job suggestions based on your profile</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-5 h-5 text-purple-600" />
+              <div className="flex items-start gap-4 p-4 bg-card/60 backdrop-blur-sm rounded-xl border border-border">
+                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Smart Timetable Management</h3>
-                  <p className="text-sm text-gray-600">Upload and manage your academic schedule effortlessly</p>
+                  <h3 className="font-semibold text-foreground">Smart Timetable Management</h3>
+                  <p className="text-sm text-muted-foreground">Upload and manage your academic schedule effortlessly</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20">
-                <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-5 h-5 text-indigo-600" />
+              <div className="flex items-start gap-4 p-4 bg-card/60 backdrop-blur-sm rounded-xl border border-border">
+                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Career Opportunities</h3>
-                  <p className="text-sm text-gray-600">Discover internships and jobs matched to your skills</p>
+                  <h3 className="font-semibold text-foreground">Career Opportunities</h3>
+                  <p className="text-sm text-muted-foreground">Discover internships and jobs matched to your skills</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Side - Auth Form */}
-          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl">
+          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <Card className="border border-border shadow-lg bg-card/80 backdrop-blur-md">
               <CardHeader className="space-y-1 pb-6">
                 <div className="flex items-center justify-center lg:hidden mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                    <GraduationCap className="w-7 h-7 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                    <GraduationCap className="w-6 h-6 text-primary-foreground" />
                   </div>
                 </div>
-                <CardTitle className="text-2xl font-bold text-center">
+                <CardTitle className="text-2xl font-bold text-center text-foreground">
                   {isSignUp ? (
                     step === 1 ? "Create Your Account" : "Academic Details"
                   ) : (
                     "Welcome Back"
                   )}
                 </CardTitle>
-                <CardDescription className="text-center">
+                <CardDescription className="text-center text-muted-foreground">
                   {isSignUp ? (
                     step === 1 
-                      ? "Start your AI-powered career journey today" 
+                      ? "Start your career journey today" 
                       : "Help us personalize your experience"
                   ) : (
                     "Sign in to continue to your dashboard"
@@ -237,8 +233,8 @@ const Auth = () => {
                 
                 {isSignUp && (
                   <div className="flex items-center justify-center gap-2 pt-2">
-                    <div className={`w-8 h-1 rounded-full ${step === 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                    <div className={`w-8 h-1 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                    <div className={`w-8 h-1 rounded-full ${step === 1 ? 'bg-primary' : 'bg-secondary'}`}></div>
+                    <div className={`w-8 h-1 rounded-full ${step === 2 ? 'bg-primary' : 'bg-secondary'}`}></div>
                   </div>
                 )}
               </CardHeader>
@@ -248,7 +244,7 @@ const Auth = () => {
                 {!isSignUp && (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="flex items-center gap-2">
+                      <Label htmlFor="email" className="flex items-center gap-2 text-foreground">
                         <Mail className="w-4 h-4" />
                         Email Address
                       </Label>
@@ -264,7 +260,7 @@ const Auth = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="flex items-center gap-2">
+                      <Label htmlFor="password" className="flex items-center gap-2 text-foreground">
                         <Lock className="w-4 h-4" />
                         Password
                       </Label>
@@ -292,7 +288,7 @@ const Auth = () => {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
+                      className="w-full h-11 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold" 
                       disabled={authLoading}
                     >
                       {authLoading ? (
@@ -312,7 +308,7 @@ const Auth = () => {
                   <form onSubmit={handleNextStep} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName" className="flex items-center gap-2">
+                        <Label htmlFor="firstName" className="flex items-center gap-2 text-foreground">
                           <User className="w-4 h-4" />
                           First Name
                         </Label>
@@ -327,7 +323,7 @@ const Auth = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="lastName" className="text-foreground">Last Name</Label>
                         <Input
                           id="lastName"
                           type="text"
@@ -341,7 +337,7 @@ const Auth = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="flex items-center gap-2">
+                      <Label htmlFor="email" className="flex items-center gap-2 text-foreground">
                         <Mail className="w-4 h-4" />
                         Email Address
                       </Label>
@@ -357,7 +353,7 @@ const Auth = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="flex items-center gap-2">
+                      <Label htmlFor="password" className="flex items-center gap-2 text-foreground">
                         <Lock className="w-4 h-4" />
                         Password
                       </Label>
@@ -384,7 +380,7 @@ const Auth = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Label htmlFor="confirmPassword" className="text-foreground">Confirm Password</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
@@ -398,7 +394,7 @@ const Auth = () => {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      className="w-full h-11 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold"
                     >
                       Continue to Academic Details
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -410,7 +406,7 @@ const Auth = () => {
                 {isSignUp && step === 2 && (
                   <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="studentId">Student ID (Optional)</Label>
+                      <Label htmlFor="studentId" className="text-foreground">Student ID (Optional)</Label>
                       <Input
                         id="studentId"
                         type="text"
@@ -422,7 +418,7 @@ const Auth = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="institutionName" className="flex items-center gap-2">
+                      <Label htmlFor="institutionName" className="flex items-center gap-2 text-foreground">
                         <Building2 className="w-4 h-4" />
                         Institution Name
                       </Label>
@@ -438,7 +434,7 @@ const Auth = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="department">Department</Label>
+                        <Label htmlFor="department" className="text-foreground">Department</Label>
                         <Input
                           id="department"
                           type="text"
@@ -449,7 +445,7 @@ const Auth = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="branch">Branch/Major</Label>
+                        <Label htmlFor="branch" className="text-foreground">Branch/Major</Label>
                         <Input
                           id="branch"
                           type="text"
@@ -463,22 +459,22 @@ const Auth = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="currentYear">Current Year</Label>
+                        <Label htmlFor="currentYear" className="text-foreground">Current Year</Label>
                         <Select value={currentYear} onValueChange={setCurrentYear}>
-                          <SelectTrigger className="h-11">
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1st Year</SelectItem>
-                            <SelectItem value="2">2nd Year</SelectItem>
-                            <SelectItem value="3">3rd Year</SelectItem>
-                            <SelectItem value="4">4th Year</SelectItem>
-                            <SelectItem value="5">5th Year</SelectItem>
-                          </SelectContent>
+                           <SelectTrigger className="h-11">
+                             <SelectValue placeholder="Select year" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             <SelectItem value="1">1st Year</SelectItem>
+                             <SelectItem value="2">2nd Year</SelectItem>
+                             <SelectItem value="3">3rd Year</SelectItem>
+                             <SelectItem value="4">4th Year</SelectItem>
+                             <SelectItem value="5">5th Year</SelectItem>
+                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="currentSemester">Current Semester</Label>
+                        <Label htmlFor="currentSemester" className="text-foreground">Current Semester</Label>
                         <Select value={currentSemester} onValueChange={setCurrentSemester}>
                           <SelectTrigger className="h-11">
                             <SelectValue placeholder="Select semester" />
@@ -498,14 +494,14 @@ const Auth = () => {
                       <Button 
                         type="button"
                         variant="outline"
-                        className="flex-1 h-11"
+                        className="flex-1 h-11 border-border text-foreground hover:bg-secondary"
                         onClick={() => setStep(1)}
                       >
                         Back
                       </Button>
                       <Button 
                         type="submit" 
-                        className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
+                        className="flex-1 h-11 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold" 
                         disabled={authLoading}
                       >
                         {authLoading ? (
@@ -524,11 +520,11 @@ const Auth = () => {
                 {/* Toggle Sign Up/Sign In */}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+                    <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-muted-foreground">
-                      {isSignUp ? "Already have an account?" : "New to EduCareer AI?"}
+                    <span className="bg-card px-2 text-muted-foreground">
+                      {isSignUp ? "Already have an account?" : "New to CareerPath?"}
                     </span>
                   </div>
                 </div>
@@ -536,7 +532,7 @@ const Auth = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-11"
+                  className="w-full h-11 border-border text-foreground hover:bg-secondary"
                   onClick={() => {
                     setIsSignUp(!isSignUp);
                     setStep(1);
@@ -545,7 +541,7 @@ const Auth = () => {
                   {isSignUp ? "Sign In Instead" : "Create an Account"}
                 </Button>
                 
-                <p className="text-center text-xs text-gray-500 pt-2">
+                <p className="text-center text-xs text-muted-foreground pt-2">
                   By continuing, you agree to our Terms of Service and Privacy Policy
                 </p>
               </CardContent>

@@ -199,13 +199,13 @@ export default function Opportunities() {
       window.open(opportunity.applicationUrl, '_blank');
       
       toast({
-        title: "Opening Application! 🚀",
+        title: "Opening Application",
         description: `Redirecting to ${opportunity.company}...`,
       });
     } else {
       // Show success message for opportunities without external URL
       toast({
-        title: "Application Submitted! ✅",
+        title: "Application Submitted",
         description: `Your application for ${opportunity?.title} at ${opportunity?.company} has been recorded. We'll contact you soon!`,
         duration: 5000,
       });

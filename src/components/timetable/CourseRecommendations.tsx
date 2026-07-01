@@ -80,7 +80,7 @@ export function CourseRecommendations({ timetableCourses }: CourseRecommendation
         setHasFetched(true);
         
         toast({
-          title: '✨ Recommendations Ready!',
+          title: 'Recommendations Ready!',
           description: `Found ${response.data.data.total_courses} courses from ${response.data.data.platforms_searched?.length || 0} platforms`,
         });
       }
@@ -140,11 +140,11 @@ export function CourseRecommendations({ timetableCourses }: CourseRecommendation
   return (
     <div className="mt-6 space-y-6">
       {/* Header Section */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+      <Card className="bg-gradient-soft border border-border">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-purple-600" />
-            <CardTitle className="text-2xl">AI-Powered Course Recommendations</CardTitle>
+            <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">AI-Powered Course Recommendations</CardTitle>
           </div>
           <CardDescription className="text-base">
             Based on your timetable, we found <strong>{recommendations.length} courses</strong> from{' '}
