@@ -1,11 +1,8 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
+from fastapi import APIRouter, File, UploadFile, HTTPException, Form
 from fastapi.responses import JSONResponse
 from app.services.timetable_processor import TimetableProcessor
-from app.database import get_db, mongo_db
-from sqlalchemy.orm import Session
-import aiofiles
-import os
-from typing import Dict, Any
+from app.database import mongo_db
+from typing import Dict, Any, Optional
 
 router = APIRouter()
 timetable_processor = TimetableProcessor()
@@ -13,8 +10,7 @@ timetable_processor = TimetableProcessor()
 @router.post("/upload")
 async def upload_timetable(
     file: UploadFile = File(...),
-    user_id: str = None,
-    db: Session = Depends(get_db)
+    user_id: Optional[str] = Form(None)
 ):
     """Upload and process timetable file (PDF or image)"""
     
